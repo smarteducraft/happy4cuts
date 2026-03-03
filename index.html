@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>행복네컷 (V3.39)</title>
+  <title>행복네컷 (V3.40)</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -56,7 +56,6 @@
 
     .font-selector{padding:8px;border-radius:8px;border:1px solid #e5e7eb;font-size:14px;cursor:pointer;}
 
-    /* ✅ 카메라 선택 버튼 */
     .cam-pill{
       display:flex; align-items:center; justify-content:center;
       gap:6px;
@@ -99,7 +98,7 @@
     <header class="bg-white p-3 shadow-sm flex justify-center items-center z-10 shrink-0 h-14 border-b">
       <div class="flex items-center gap-2">
         <i data-lucide="camera" class="text-pink-500 w-6 h-6"></i>
-        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.39</span></h1>
+        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.40</span></h1>
       </div>
     </header>
 
@@ -126,21 +125,18 @@
                 </div>
                 <span class="text-[12px] font-jua text-gray-600 leading-none">촬영</span>
               </div>
-
               <div class="flex flex-col items-center justify-start gap-2">
                 <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shadow-sm">
                   <i data-lucide="check-square" class="w-6 h-6"></i>
                 </div>
                 <span class="text-[12px] font-jua text-gray-600 leading-none">선택</span>
               </div>
-
               <div class="flex flex-col items-center justify-start gap-2">
                 <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500 shadow-sm">
                   <i data-lucide="palette" class="w-6 h-6"></i>
                 </div>
                 <span class="text-[12px] font-jua text-gray-600 leading-none">프레임</span>
               </div>
-
               <div class="flex flex-col items-center justify-start gap-2">
                 <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 shadow-sm">
                   <i data-lucide="smile" class="w-6 h-6"></i>
@@ -231,7 +227,6 @@
           <h2 class="text-2xl font-jua text-pink-600">4장을 선택하세요!</h2>
           <p class="text-gray-500 font-medium mt-1 text-base">(<span id="selected-count" class="text-pink-500">0</span> / 4)</p>
 
-          <!-- ✅ 기존 이미지 추가 -->
           <div class="mt-3 flex items-center justify-center gap-2">
             <input id="file-add-photos" type="file" accept="image/*" multiple class="hidden" onchange="handleAddPhotos(event)" />
             <button onclick="document.getElementById('file-add-photos').click()"
@@ -317,7 +312,6 @@
           <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col gap-3 overflow-hidden">
             <h3 class="text-lg font-jua text-pink-500 mb-1 text-center border-b pb-3 shrink-0">문구 입력/수정</h3>
 
-            <!-- ✅ 상단 제목 수정 -->
             <div class="rounded-xl border border-pink-100 bg-pink-50/40 p-3">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-bold text-pink-600">상단 제목(기본: 행복네컷)</span>
@@ -346,11 +340,10 @@
               </div>
 
               <p class="text-[11px] text-gray-500 mt-2 leading-snug">
-                제목도 캔버스에서 클릭하면 선택되어 아래 “선택 문구 수정”으로 다시 편집할 수 있어요.
+                제목은 이 단계에서만 추가/표시됩니다. 캔버스에서 클릭하면 “선택 문구 수정”으로 다시 편집 가능해요.
               </p>
             </div>
 
-            <!-- ✅ 하단 문구 추가 -->
             <div class="flex flex-col gap-2">
               <textarea id="input-text-content" rows="2" placeholder="하단 문구를 입력하세요 (최대 2줄)"
                 class="w-full p-2 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-300 font-gothic text-sm resize-none"></textarea>
@@ -373,7 +366,6 @@
               </div>
             </div>
 
-            <!-- ✅ 선택한 텍스트 수정 -->
             <div class="rounded-xl border border-gray-200 bg-white p-3 overflow-hidden">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-bold text-gray-700">선택 문구 수정</span>
@@ -469,7 +461,7 @@
   // =========================================================
   // ✅ Version control
   // =========================================================
-  const APP_VERSION = "V3.39";
+  const APP_VERSION = "V3.40";
 
   // =========================================================
   // ✅ Handle sizes
@@ -594,12 +586,12 @@
   let state = {
     version: APP_VERSION,
     versionHistory: [
-      { version: "V3.39", note: "프레임/스티커/문구 단계 사진 이동·줌 기능 제거, 사진 선택 단계 '기존 이미지 추가' 기능 유지" }
+      { version: "V3.40", note: "제목(행복네컷) 기본 표시는 문구 단계에서만 생성/표시되도록 변경" }
     ],
 
-    photos: [],                 // dataURL 목록 (촬영 + 업로드)
-    photoSources: [],           // 각 photos의 출처: 'shot' | 'added'
-    selectedIndices: [],        // photos의 index (4개)
+    photos: [],
+    photoSources: [],
+    selectedIndices: [],
 
     frameStyle: '#ffffff',
     soundEnabled: true,
@@ -608,6 +600,9 @@
 
     stickers: [],
     texts: [],
+
+    // ✅ V3.40: 제목은 문구 단계에서만 표시
+    titleEnabled: false,
 
     titleText: {
       id: 'title-text',
@@ -716,7 +711,10 @@
   // =========================================================
   // ✅ Title/Text helpers
   // =========================================================
-  function getAllTextItems(){ return [state.titleText, ...state.texts]; }
+  function getAllTextItems(){
+    // ✅ V3.40: titleEnabled가 true일 때만 제목 포함
+    return state.titleEnabled ? [state.titleText, ...state.texts] : [...state.texts];
+  }
   function isTitleItem(it){ return it && it.role === 'title'; }
   function defaultTitleColorForFrame(){
     const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
@@ -742,6 +740,7 @@
     const fontFamily = fs?.value || 'Jua';
     const fontSize = Math.min(140, Math.max(18, parseInt(sz?.value || '68', 10)));
 
+    state.titleEnabled = true; // ✅ 제목 입력 시도하면 자동 활성화
     state.titleText.text = text;
     state.titleText.fontFamily = fontFamily;
     state.titleText.fontSize = fontSize;
@@ -936,7 +935,7 @@
     if(step.shot) return 500;
     return 650;
   }
-  const OFF_EXTRA_DELAY_MS = 500; // OFF일 때 추가 0.5초
+  const OFF_EXTRA_DELAY_MS = 500;
 
   async function playStep(step){
     if(state.soundEnabled){
@@ -1037,6 +1036,15 @@
     }
 
     if(stepId === 'step-decorate-text'){
+      // ✅ V3.40: 문구 단계 진입 시에만 제목 활성화 + 기본값 생성
+      if(!state.titleEnabled){
+        state.titleEnabled = true;
+        if(!state.titleText.text) state.titleText.text = '행복네컷';
+        state.titleText.fontFamily = state.titleText.fontFamily || 'Jua';
+        state.titleText.fontSize = state.titleText.fontSize || 68;
+        state.titleText.color = state.titleText.color ?? null;
+      }
+
       ensureCanvasSize('bg-canvas-text');
       ensureCanvasSize('text-canvas');
       drawBaseWithStickers('bg-canvas-text');
@@ -1095,7 +1103,6 @@
   async function startCamera(){
     state.isCapturing = true;
 
-    // 촬영 시작 시: 촬영분만 초기화(추가 사진까지 초기화 원치 않으면 아래 2줄 주석 처리)
     state.photos = [];
     state.photoSources = [];
     state.selectedIndices = [];
@@ -1280,7 +1287,7 @@
   }
 
   // =========================================================
-  // ✅ Frame draw (기본: 중앙 크롭 cover)
+  // ✅ Frame draw
   // =========================================================
   async function drawFrameCanvas(canvasOrId){
     const canvas = (typeof canvasOrId === 'string') ? document.getElementById(canvasOrId) : canvasOrId;
@@ -1292,19 +1299,19 @@
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // background
     ctx.fillStyle = state.frameStyle;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // title
-    const titleColor = (state.titleText.color ?? defaultTitleColorForFrame());
-    ctx.fillStyle = titleColor;
-    ctx.font = `${state.titleText.fontSize || 68}px ${state.titleText.fontFamily || 'Jua'}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    fillTextWithSpacing(ctx, String(state.titleText.text || '행복네컷'), canvas.width/2, FRAME_LAYOUT.titleY, 14);
+    // ✅ V3.40: 제목은 titleEnabled일 때만 그림
+    if(state.titleEnabled){
+      const titleColor = (state.titleText.color ?? defaultTitleColorForFrame());
+      ctx.fillStyle = titleColor;
+      ctx.font = `${state.titleText.fontSize || 68}px ${state.titleText.fontFamily || 'Jua'}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      fillTextWithSpacing(ctx, String(state.titleText.text || '행복네컷'), canvas.width/2, FRAME_LAYOUT.titleY, 14);
+    }
 
-    // photos (4 slots)
     const { marginX, startY, gapY, photoAspectH } = FRAME_LAYOUT;
     const imgW = canvas.width - (marginX * 2);
     const imgH = imgW * photoAspectH;
@@ -1346,7 +1353,6 @@
           ctx.drawImage(img, dx, dy, drawW, drawH);
           ctx.restore();
 
-          // subtle border
           ctx.save();
           ctx.strokeStyle = 'rgba(0,0,0,0.08)';
           ctx.lineWidth = 2;
@@ -1359,7 +1365,6 @@
       });
     }
 
-    // date
     const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
     ctx.fillStyle = isDark ? '#aaaaaa' : '#555555';
     ctx.font = '30px Noto Sans KR';
@@ -1894,6 +1899,7 @@
       octx.restore();
     });
 
+    // ✅ titleEnabled일 때만 제목이 drawFrameCanvas에 포함됨
     state.texts.forEach(t => {
       octx.save();
       octx.translate(t.x, t.y);
@@ -1908,6 +1914,19 @@
       lines.forEach((line,i)=>octx.fillText(line,0,startY+i*lineH));
       octx.restore();
     });
+
+    // ✅ 제목도 최종 결과에 포함되도록(문구단계에서 활성화된 경우)
+    if(state.titleEnabled){
+      octx.save();
+      octx.translate(state.titleText.x, state.titleText.y);
+      const fs = state.titleText.fontSize || 68;
+      const ff = state.titleText.fontFamily || 'Jua';
+      octx.font = `${fs}px ${ff}`;
+      octx.fillStyle = (state.titleText.color ?? defaultTitleColorForFrame());
+      octx.textAlign='center'; octx.textBaseline='middle';
+      octx.fillText(String(state.titleText.text || '행복네컷'), 0, 0);
+      octx.restore();
+    }
 
     const out46 = document.getElementById('print-canvas-4x6');
     out46.width = baseW*2;
@@ -1953,6 +1972,8 @@
     state.currentTextColor = '#000000';
     state._countdownRunning = false;
 
+    // ✅ V3.40: 제목은 다시 숨김 상태로 초기화
+    state.titleEnabled = false;
     state.titleText.text = '행복네컷';
     state.titleText.fontFamily = 'Jua';
     state.titleText.fontSize = 68;
@@ -1995,6 +2016,7 @@
       e.preventDefault();
 
       if(isTitleItem(state.selectedItem)){
+        // 제목 삭제는 '초기화'만(표시 자체는 계속)
         state.titleText.text = '행복네컷';
         state.titleText.fontFamily = 'Jua';
         state.titleText.fontSize = 68;
@@ -2021,8 +2043,11 @@
   });
 
   // =========================================================
-  // ✅ Init
+  // ✅ Minimal remaining functions used earlier
   // =========================================================
+  async function startCamera(){ /* 이미 위에 정의됨 */ }
+
+  // ✅ 카메라/사운드/스텝 초기화
   document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     setCameraFacing('user', false);
