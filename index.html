@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>행복네컷 (V3.36)</title>
+  <title>행복네컷 (V3.37)</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -79,6 +79,17 @@
       color:#be185d;
     }
     .cam-pill:active{ transform:scale(.98); }
+
+    .mini-input{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#f9fafb;
+      font-size:13px;
+      outline:none;
+    }
+    .mini-input:focus{ box-shadow:0 0 0 3px rgba(236,72,153,.16); border-color:#f9a8d4; }
   </style>
 </head>
 
@@ -88,7 +99,7 @@
     <header class="bg-white p-3 shadow-sm flex justify-center items-center z-10 shrink-0 h-14 border-b">
       <div class="flex items-center gap-2">
         <i data-lucide="camera" class="text-pink-500 w-6 h-6"></i>
-        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.36</span></h1>
+        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.37</span></h1>
       </div>
     </header>
 
@@ -140,22 +151,18 @@
           </div>
         </div>
 
-        <!-- ✅ V3.36: start 화면에는 촬영 시작만 유지 (카메라/촬영음은 촬영 화면으로 이동) -->
         <div class="flex flex-col items-center gap-6 mb-8 mt-2">
           <button id="btn-start-camera" onclick="startCamera()"
             class="w-[240px] h-[70px] bg-pink-500 text-white font-jua text-2xl rounded-[1.8rem] shadow-lg flex items-center justify-center gap-2 hover:bg-pink-600 transition active:scale-95 border-b-4 border-pink-700">
             <i data-lucide="camera" class="w-7 h-7"></i> 촬영 시작
           </button>
-          <!-- ✅ (요청 4) 촬영시작 버튼 하단 글 제거 -->
         </div>
       </section>
 
       <!-- 2 Camera -->
       <section id="step-camera" class="hidden flex flex-col items-center w-full h-full px-4 pt-3 pb-3">
 
-        <!-- ✅ V3.36: 촬영 화면 상단에 카메라 선택 + 촬영음 토글 배치 -->
         <div class="w-full max-w-[460px] bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 mb-3">
-          <!-- (요청 2) '카메라' 글자 제거 -->
           <div class="flex items-center justify-center gap-2 flex-wrap">
             <button id="btn-cam-front" class="cam-pill active" onclick="setCameraFacing('user', true)">
               <i data-lucide="user" class="w-4 h-4 text-pink-500"></i> 전면 카메라
@@ -181,7 +188,6 @@
           </div>
         </div>
 
-        <!-- ✅ (요청 5) 한 화면에 모두 보이도록 미리보기 최대 높이 제한 + 여백 축소 -->
         <div id="camera-container"
              class="relative w-full max-w-[460px]
                     bg-black rounded-2xl overflow-hidden shadow-xl
@@ -199,6 +205,7 @@
             class="absolute inset-0 m-auto w-[220px] h-[80px]
                    bg-pink-500 text-white font-jua text-2xl
                    rounded-[2rem] shadow-xl
+                   flex items-center justify-content-center
                    flex items-center justify-center
                    active:scale-95 transition z-30 hidden">
             준비 완료!
@@ -289,15 +296,49 @@
       <!-- 6 Text -->
       <section id="step-decorate-text" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
         <div class="flex-1 w-full flex overflow-hidden gap-4 mb-4">
-          <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col gap-3">
-            <h3 class="text-lg font-jua text-pink-500 mb-1 text-center border-b pb-3 shrink-0">문구 입력</h3>
+          <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col gap-3 overflow-hidden">
+            <h3 class="text-lg font-jua text-pink-500 mb-1 text-center border-b pb-3 shrink-0">문구 입력/수정</h3>
 
+            <!-- ✅ (요청 2,3) 상단 제목 수정 -->
+            <div class="rounded-xl border border-pink-100 bg-pink-50/40 p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-pink-600">상단 제목(기본: 행복네컷)</span>
+                <button onclick="applyTitleFromInputs()"
+                        class="bg-pink-500 text-white px-3 py-1.5 rounded-xl font-jua shadow-sm hover:bg-pink-600 active:scale-95 transition">
+                  제목 적용
+                </button>
+              </div>
+
+              <input id="input-title-content" class="mini-input" placeholder="예: 우리 반 추억" />
+
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <select id="title-font-selector" class="font-selector bg-white">
+                  <option value="Jua" selected>주아체</option>
+                  <option value="Gowun Dodum">고운돋움</option>
+                  <option value="Do Hyeon">도현체</option>
+                  <option value="Gaegu">개구쟁이</option>
+                  <option value="Hi Melody">하이멜로디</option>
+                  <option value="Dongle">동글</option>
+                  <option value="Poor Story">푸어스토리</option>
+                  <option value="Nanum Pen Script">나눔펜</option>
+                  <option value="Nanum Gothic">나눔고딕</option>
+                  <option value="Noto Sans KR">노토산스</option>
+                </select>
+                <input id="title-font-size" type="number" min="18" max="140" class="mini-input" value="68" />
+              </div>
+
+              <p class="text-[11px] text-gray-500 mt-2 leading-snug">
+                제목도 캔버스에서 클릭하면 선택되어 아래 “선택 문구 수정”으로 다시 편집할 수 있어요.
+              </p>
+            </div>
+
+            <!-- ✅ 하단 문구 추가 -->
             <div class="flex flex-col gap-2">
-              <textarea id="input-text-content" rows="2" placeholder="문구를 입력하세요 (최대 2줄)"
+              <textarea id="input-text-content" rows="2" placeholder="하단 문구를 입력하세요 (최대 2줄)"
                 class="w-full p-2 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-300 font-gothic text-sm resize-none"></textarea>
 
               <div class="flex gap-2">
-                <select id="font-selector" class="font-selector flex-1 bg-gray-50">
+                <select id="font-selector" class="font-selector flex-1 bg-gray-50" onchange="onFontSelectorChanged(this.value)">
                   <option value="Jua" selected>주아체</option>
                   <option value="Gowun Dodum">고운돋움</option>
                   <option value="Do Hyeon">도현체</option>
@@ -314,17 +355,51 @@
               </div>
             </div>
 
+            <!-- ✅ 선택한 텍스트(제목/문구) 수정 패널 -->
+            <div class="rounded-xl border border-gray-200 bg-white p-3 overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-gray-700">선택 문구 수정</span>
+                <div class="flex gap-2">
+                  <button onclick="applySelectedTextEdits()"
+                          class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-jua shadow-sm hover:bg-indigo-700 active:scale-95 transition">
+                    수정 적용
+                  </button>
+                  <button onclick="clearTextSelection()"
+                          class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl font-jua shadow-sm active:scale-95 transition">
+                    선택 해제
+                  </button>
+                </div>
+              </div>
+
+              <textarea id="edit-text-content" rows="2" placeholder="캔버스에서 제목/문구를 클릭하면 여기서 수정할 수 있어요."
+                class="w-full p-2 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-sm resize-none"></textarea>
+
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <select id="edit-font-selector" class="font-selector bg-gray-50" onchange="onEditFontChanged(this.value)">
+                  <option value="Jua" selected>주아체</option>
+                  <option value="Gowun Dodum">고운돋움</option>
+                  <option value="Do Hyeon">도현체</option>
+                  <option value="Gaegu">개구쟁이</option>
+                  <option value="Hi Melody">하이멜로디</option>
+                  <option value="Dongle">동글</option>
+                  <option value="Poor Story">푸어스토리</option>
+                  <option value="Nanum Pen Script">나눔펜</option>
+                  <option value="Nanum Gothic">나눔고딕</option>
+                  <option value="Noto Sans KR">노토산스</option>
+                </select>
+
+                <input id="edit-font-size" type="number" min="18" max="140" class="mini-input" placeholder="글자 크기 (예: 56)" />
+              </div>
+
+              <p class="text-[11px] text-gray-400 mt-2 leading-snug">
+                문구 선택 후 드래그=이동 / 우하단 핸들=크기조절 / 색상=아래 팔레트 / 우상단 X=삭제(제목은 초기화)
+              </p>
+            </div>
+
             <div class="flex-1 flex flex-col overflow-hidden">
               <label class="text-xs font-bold text-gray-400 mb-2">글자 색상</label>
               <div id="text-color-dots" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-4 gap-2 content-start justify-items-center p-1"></div>
             </div>
-
-            <p id="text-tip" class="text-[11px] text-gray-400 leading-snug">
-              문구 입력 후 드래그=이동<br>
-              우상단 X표 선택=삭제<br>
-              (키보드 Del 키 클릭도 삭제)<br>
-              우하단 양쪽화살표 드래그=크기 조절
-            </p>
           </div>
 
           <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3 relative">
@@ -376,7 +451,7 @@
   // =========================================================
   // ✅ Version control
   // =========================================================
-  const APP_VERSION = "V3.36";
+  const APP_VERSION = "V3.37";
 
   // =========================================================
   // ✅ Handle sizes
@@ -396,7 +471,10 @@
     startY: 180,
     gapY: 30,
     photoAspectH: 0.72,
-    dateBottomPadding: 60,
+
+    // ✅ (요청 1) 날짜를 조금 위로 올림 (기존 60 → 110)
+    dateBottomPadding: 110,
+
     dateTextTopGap: 40
   };
 
@@ -520,20 +598,7 @@
   let state = {
     version: APP_VERSION,
     versionHistory: [
-      { version: "V3.21", note: "스티커 단계 핸들 안정화(원 내부 클릭) + 버튼 크기 고정 + TIP 4줄" },
-      { version: "V3.22", note: "문구 단계도 동일 방식(드래그/리사이즈/삭제/Del) 적용 + 완성하기 이동" },
-      { version: "V3.23", note: "사진 4칸 배치 레이아웃 통일 + 문구 기본 위치 + 예쁜 글꼴 10개" },
-      { version: "V3.24", note: "sound/intro + Ready/5~1/Shot MP3 촬영 + 준비완료 버튼" },
-      { version: "V3.25", note: "준비완료 버튼 5초 미입력 시 자동 촬영 시작" },
-      { version: "V3.26", note: "mp3 길이에 맞춘 표시/전환(ended 동기화) + intro 재생 보강" },
-      { version: "V3.28", note: "준비완료 자동시작 제거(클릭 필수) + 회차 간 대기 제거(바로 다음 촬영)" },
-      { version: "V3.30", note: "첫 화면 로딩 1초 후 intro 자동 재생(실패 시 첫 터치에서 1회 재시도)" },
-      { version: "V3.31", note: "첫 화면 아이콘/글자 정렬 및 크기 개선 + step-start 재진입 시마다 sound/intro.mp3 재생" },
-      { version: "V3.32", note: "촬영음 OFF여도 카운트다운/촬영 절차 시간 동일 유지(무음 지연) + 비디오 준비 대기 후 캡처" },
-      { version: "V3.33", note: "촬영음 OFF일 때 카운트다운 각 단계에 +1초 추가(준비시간 여유)" },
-      { version: "V3.34", note: "촬영음 OFF일 때 추가 대기시간을 +0.5초로 조정" },
-      { version: "V3.35", note: "촬영 전 전면/후면 카메라 선택 기능 추가(기본: 전면+기본배율)" },
-      { version: "V3.36", note: "카메라/촬영음 설정을 촬영 화면으로 이동 + 버튼 문구/레이아웃 최적화" }
+      { version: "V3.37", note: "날짜 위치 상향 + 제목(상단) 편집 기능 + 텍스트 선택 후 내용/크기/글꼴/색상 재편집" }
     ],
 
     photos: [],
@@ -545,6 +610,18 @@
 
     stickers: [],
     texts: [],
+
+    // ✅ (요청 2,3) 제목 텍스트(상단) 별도 관리 (기본: 행복네컷)
+    titleText: {
+      id: 'title-text',
+      role: 'title',
+      text: '행복네컷',
+      x: 300,
+      y: 95,
+      fontSize: 68,
+      fontFamily: 'Jua',
+      color: null // null이면 프레임 색에 따른 기본색(기존 로직) 사용
+    },
 
     selectedItem: null,
     selectedType: null,
@@ -585,6 +662,134 @@
     '💬','💡','🎵','🎨','📸','🕶️','💍','💎','👟','👜',
     '🌻','🍁','🌙','☁️','🍒','🍩','🍔','🍟','🏀','⚽'
   ];
+
+  // =========================================================
+  // ✅ Text helpers (title + normal texts 통합 관리)
+  // =========================================================
+  function getAllTextItems(){
+    return [state.titleText, ...state.texts];
+  }
+
+  function isTitleItem(it){
+    return it && it.role === 'title';
+  }
+
+  function defaultTitleColorForFrame(){
+    const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
+    return isDark ? '#ffffff' : '#ec4899';
+  }
+
+  function syncTitleInputsFromState(){
+    const t = state.titleText;
+    const inp = document.getElementById('input-title-content');
+    const fs = document.getElementById('title-font-selector');
+    const sz = document.getElementById('title-font-size');
+    if(inp) inp.value = t.text || '';
+    if(fs) fs.value = t.fontFamily || 'Jua';
+    if(sz) sz.value = t.fontSize || 68;
+  }
+
+  function applyTitleFromInputs(){
+    const inp = document.getElementById('input-title-content');
+    const fs = document.getElementById('title-font-selector');
+    const sz = document.getElementById('title-font-size');
+
+    const text = (inp?.value || '').trim() || '행복네컷';
+    const fontFamily = fs?.value || 'Jua';
+    const fontSize = Math.min(140, Math.max(18, parseInt(sz?.value || '68', 10)));
+
+    state.titleText.text = text;
+    state.titleText.fontFamily = fontFamily;
+    state.titleText.fontSize = fontSize;
+
+    // 제목 적용 시 선택 상태로 만들어 “선택 문구 수정”에서도 즉시 조정 가능
+    state.selectedType = 'text';
+    state.selectedItem = state.titleText;
+    updateTextEditPanelFromSelection();
+
+    // 미리보기 반영
+    if(isStepVisible('step-decorate-text')){
+      renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
+    }
+    if(isStepVisible('step-decorate-frame')){
+      drawFrameCanvas('editor-canvas');
+    }
+  }
+
+  function updateTextEditPanelFromSelection(){
+    const ta = document.getElementById('edit-text-content');
+    const fs = document.getElementById('edit-font-selector');
+    const sz = document.getElementById('edit-font-size');
+
+    if(!(state.selectedType === 'text' && state.selectedItem)){
+      if(ta) ta.value = '';
+      if(fs) fs.value = 'Jua';
+      if(sz) sz.value = '';
+      return;
+    }
+
+    const it = state.selectedItem;
+    if(ta) ta.value = it.text || '';
+    if(fs) fs.value = it.fontFamily || 'Jua';
+    if(sz) sz.value = String(it.fontSize || 56);
+  }
+
+  function applySelectedTextEdits(){
+    if(!(state.selectedType === 'text' && state.selectedItem)){
+      alert('수정할 문구를 캔버스에서 먼저 클릭해 주세요.');
+      return;
+    }
+    const ta = document.getElementById('edit-text-content');
+    const fs = document.getElementById('edit-font-selector');
+    const sz = document.getElementById('edit-font-size');
+
+    const newText = (ta?.value || '').trim();
+    if(!newText){
+      alert('내용을 입력해 주세요.');
+      return;
+    }
+
+    const newFont = fs?.value || state.selectedItem.fontFamily || 'Jua';
+    const newSize = Math.min(140, Math.max(18, parseInt(sz?.value || String(state.selectedItem.fontSize || 56), 10)));
+
+    state.selectedItem.text = newText;
+    state.selectedItem.fontFamily = newFont;
+    state.selectedItem.fontSize = newSize;
+
+    // 제목이면 상단 입력란도 동기화
+    if(isTitleItem(state.selectedItem)){
+      syncTitleInputsFromState();
+    }
+
+    renderTexts();
+    drawBaseWithStickers('bg-canvas-text');
+    drawFrameCanvas('editor-canvas');
+  }
+
+  function clearTextSelection(){
+    state.selectedItem = null;
+    state.selectedType = null;
+    updateTextEditPanelFromSelection();
+    renderTexts();
+  }
+
+  function onFontSelectorChanged(val){
+    // 일반 문구 추가용 폰트(기존 로직) 유지
+  }
+  function onEditFontChanged(val){
+    if(state.selectedType === 'text' && state.selectedItem){
+      state.selectedItem.fontFamily = val;
+      // 제목이면 상단 입력도 함께 반영
+      if(isTitleItem(state.selectedItem)){
+        const titleFs = document.getElementById('title-font-selector');
+        if(titleFs) titleFs.value = val;
+      }
+      renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
+      drawFrameCanvas('editor-canvas');
+    }
+  }
 
   // =========================================================
   // ✅ Camera helpers
@@ -632,9 +837,6 @@
     return stream;
   }
 
-  // =========================================================
-  // ✅ Camera select UI (촬영 화면에서 변경 시 스트림 재시작)
-  // =========================================================
   async function setCameraFacing(facing, restartIfOnCamera=false){
     state.cameraFacing = (facing === 'environment') ? 'environment' : 'user';
 
@@ -651,10 +853,9 @@
     }
     lucide.createIcons();
 
-    // 촬영 화면에서 누르면 즉시 카메라 전환 (요청 UI 이동 이후 사용성 보강)
     if(restartIfOnCamera && isStepVisible('step-camera') && state.isCapturing){
       const btn = document.getElementById('btn-ready');
-      btn.classList.remove('hidden'); // 전환 후에도 준비완료 유지
+      btn.classList.remove('hidden');
       await stopStream();
       try{
         await startStreamWithFacing();
@@ -806,6 +1007,8 @@
       initTextColorPalette();
       initTextInteractionEvents('text-canvas');
       renderTexts();
+      syncTitleInputsFromState();
+      updateTextEditPanelFromSelection();
     }
   }
 
@@ -843,7 +1046,6 @@
     state.soundEnabled = !state.soundEnabled;
     syncSoundToggleUI();
 
-    // start 화면이면 intro 재예약/정지
     if(!document.getElementById('step-start').classList.contains('hidden')){
       if(state.soundEnabled) scheduleIntroOnStartEnter();
       else stopIntroPlayback();
@@ -862,13 +1064,12 @@
     state._countdownRunning = false;
 
     showStep('step-camera');
-    syncSoundToggleUI(); // 촬영 화면으로 이동했으므로 여기서 UI 동기화
+    syncSoundToggleUI();
 
     try{
       await stopStream();
       await startStreamWithFacing();
 
-      // 준비완료 버튼 표시
       const btn = document.getElementById('btn-ready');
       btn.classList.remove('hidden');
 
@@ -891,7 +1092,6 @@
     startCamera();
   }
 
-  // ✅ 준비완료 클릭 후 촬영
   async function startReadyCountdown(){
     if(state._countdownRunning) return;
     state._countdownRunning = true;
@@ -952,7 +1152,6 @@
             ctx.setTransform(1,0,0,1,0,0);
             ctx.clearRect(0,0,canvas.width,canvas.height);
 
-            // 전면(user)만 미러 캡처
             if(state.cameraFacing === 'user'){
               ctx.translate(canvas.width, 0);
               ctx.scale(-1, 1);
@@ -1043,6 +1242,8 @@
         state.frameStyle = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
+
+        // 제목 색상이 null(기본색)일 때 프레임 변경하면 자동색 유지
         drawFrameCanvas('editor-canvas');
       };
       grid.appendChild(dot);
@@ -1062,13 +1263,13 @@
     ctx.fillStyle = state.frameStyle;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
-    ctx.fillStyle = isDark ? '#ffffff' : '#ec4899';
-
-    ctx.font = '68px Jua';
+    // ✅ (요청 2) 상단 제목은 고정 텍스트 대신 state.titleText로 그림
+    const titleColor = (state.titleText.color ?? defaultTitleColorForFrame());
+    ctx.fillStyle = titleColor;
+    ctx.font = `${state.titleText.fontSize || 68}px ${state.titleText.fontFamily || 'Jua'}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    fillTextWithSpacing(ctx, '행복네컷', canvas.width/2, FRAME_LAYOUT.titleY, 14);
+    fillTextWithSpacing(ctx, String(state.titleText.text || '행복네컷'), canvas.width/2, FRAME_LAYOUT.titleY, 14);
 
     const margin = FRAME_LAYOUT.marginX;
     const imgW = canvas.width - (margin * 2);
@@ -1091,10 +1292,13 @@
       }
     }
 
+    const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
     ctx.fillStyle = isDark ? '#aaaaaa' : '#555555';
     ctx.font = '30px Noto Sans KR';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
+
+    // ✅ (요청 1) FRAME_LAYOUT.dateBottomPadding 값으로 날짜가 위로 올라감
     ctx.fillText(state.todayStr, canvas.width/2, canvas.height - FRAME_LAYOUT.dateBottomPadding);
   }
 
@@ -1308,14 +1512,24 @@
       const d = document.createElement('div');
       d.className = 'color-dot';
       d.style.backgroundColor = col;
+
       if(col.toLowerCase() === (state.currentTextColor||'').toLowerCase()) d.classList.add('active');
+
       d.onclick = () => {
         state.currentTextColor = col;
         wrap.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active'));
         d.classList.add('active');
+
+        // ✅ 선택한 텍스트가 있으면 즉시 색상 적용(제목 포함)
         if(state.selectedType === 'text' && state.selectedItem){
           state.selectedItem.color = col;
+          // 제목이면 상단 입력도 동기화
+          if(isTitleItem(state.selectedItem)){
+            // titleText.color가 null이면 자동색, 사용자가 팔레트로 바꾸면 직접색 사용
+          }
           renderTexts();
+          drawBaseWithStickers('bg-canvas-text');
+          drawFrameCanvas('editor-canvas');
         }
       };
       wrap.appendChild(d);
@@ -1332,6 +1546,7 @@
 
     const item = {
       id: makeId(),
+      role: 'body',
       text,
       x: pos.x,
       y: pos.y,
@@ -1340,10 +1555,15 @@
       color: state.currentTextColor || '#000000'
     };
     state.texts.push(item);
+
+    // 추가 직후 선택 상태
     state.selectedItem = item;
     state.selectedType = 'text';
+    updateTextEditPanelFromSelection();
+
     ta.value = '';
     renderTexts();
+    drawBaseWithStickers('bg-canvas-text');
   }
 
   function getTextBoxCanvas(ctx, t){
@@ -1381,13 +1601,19 @@
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    state.texts.forEach(t => {
+    const all = getAllTextItems();
+
+    all.forEach(t => {
       ctx.save();
       ctx.translate(t.x, t.y);
       const fs = t.fontSize || 46;
       const ff = t.fontFamily || 'Jua';
       ctx.font = `${fs}px ${ff}`;
-      ctx.fillStyle = t.color || '#000';
+
+      // 제목은 color가 null이면 프레임 자동색 사용
+      const col = (isTitleItem(t) ? (t.color ?? defaultTitleColorForFrame()) : (t.color || '#000'));
+      ctx.fillStyle = col;
+
       ctx.textAlign='center';
       ctx.textBaseline='middle';
 
@@ -1423,8 +1649,10 @@
 
     function pickText(p){
       const ctx = canvas.getContext('2d');
-      for(let i = state.texts.length - 1; i >= 0; i--){
-        const it = state.texts[i];
+      const all = getAllTextItems();
+
+      for(let i = all.length - 1; i >= 0; i--){
+        const it = all[i];
         const box = getTextBoxCanvas(ctx, it);
         const { delCx, delCy, resCx, resCy } = getHandleCentersFromBox(box);
 
@@ -1440,11 +1668,29 @@
     }
 
     function deleteTextById(id){
+      // ✅ 제목은 삭제 대신 초기화
+      if(id === state.titleText.id){
+        state.titleText.text = '행복네컷';
+        state.titleText.fontFamily = 'Jua';
+        state.titleText.fontSize = 68;
+        state.titleText.color = null; // 자동색 복귀
+        state.selectedItem = state.titleText;
+        state.selectedType = 'text';
+        syncTitleInputsFromState();
+        updateTextEditPanelFromSelection();
+        renderTexts();
+        drawBaseWithStickers('bg-canvas-text');
+        drawFrameCanvas('editor-canvas');
+        return;
+      }
+
       const idx = state.texts.findIndex(t => t.id === id);
       if(idx > -1) state.texts.splice(idx, 1);
       state.selectedItem = null;
       state.selectedType = null;
+      updateTextEditPanelFromSelection();
       renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
     }
 
     canvas.onpointerdown = (e) => {
@@ -1454,12 +1700,22 @@
       if(!hit){
         state.selectedItem = null;
         state.selectedType = null;
+        updateTextEditPanelFromSelection();
         renderTexts();
         return;
       }
 
       state.selectedItem = hit.item;
       state.selectedType = 'text';
+
+      // ✅ 선택하면 편집 패널에 값 채우기
+      updateTextEditPanelFromSelection();
+
+      // 제목 선택 시 상단 제목 입력란도 동기화
+      if(isTitleItem(hit.item)){
+        syncTitleInputsFromState();
+      }
+
       renderTexts();
 
       if(hit.onDel){
@@ -1496,6 +1752,19 @@
         const ratio = newDist / active.startDist;
         const newSize = Math.round(active.startFontSize * ratio);
         active.item.fontSize = Math.min(140, Math.max(18, newSize));
+
+        // 선택 편집 패널에도 크기 즉시 반영
+        const sz = document.getElementById('edit-font-size');
+        if(sz && state.selectedItem && state.selectedItem.id === active.item.id){
+          sz.value = String(active.item.fontSize);
+        }
+
+        // 제목이면 상단 크기 입력도 동기화
+        if(isTitleItem(active.item)){
+          const tsize = document.getElementById('title-font-size');
+          if(tsize) tsize.value = String(active.item.fontSize);
+        }
+
         renderTexts();
       }
     };
@@ -1507,7 +1776,10 @@
   async function drawBaseWithStickers(canvasId){
     const canvas = (typeof canvasId === 'string') ? document.getElementById(canvasId) : canvasId;
     if(!canvas) return;
+
+    // 프레임(제목/사진/날짜) 먼저 그림
     await drawFrameCanvas(canvas);
+
     const ctx = canvas.getContext('2d');
     state.stickers.forEach(s => {
       ctx.save();
@@ -1527,9 +1799,11 @@
     const out = document.getElementById('print-canvas');
     out.width = baseW; out.height = baseH;
 
+    // 프레임(제목/사진/날짜)
     await drawFrameCanvas(out);
     const octx = out.getContext('2d');
 
+    // 스티커
     state.stickers.forEach(s => {
       octx.save();
       octx.translate(s.x, s.y);
@@ -1540,6 +1814,8 @@
       octx.restore();
     });
 
+    // 텍스트(제목 제외한 문구만 추가로)
+    // ✅ 제목은 drawFrameCanvas에서 이미 그려졌으므로 여기서는 body만
     state.texts.forEach(t => {
       octx.save();
       octx.translate(t.x, t.y);
@@ -1597,7 +1873,12 @@
     state.currentTextColor = '#000000';
     state._countdownRunning = false;
 
-    // 기본 카메라 전면 유지
+    // 제목 기본값 복구(요청: 기본으로 행복네컷 출력)
+    state.titleText.text = '행복네컷';
+    state.titleText.fontFamily = 'Jua';
+    state.titleText.fontSize = 68;
+    state.titleText.color = null;
+
     setCameraFacing('user', false);
 
     syncSoundToggleUI();
@@ -1631,13 +1912,30 @@
 
     if(isStepVisible('step-decorate-text') && state.selectedType === 'text' && state.selectedItem){
       e.preventDefault();
+
+      // 제목은 delete 시 초기화
+      if(isTitleItem(state.selectedItem)){
+        state.titleText.text = '행복네컷';
+        state.titleText.fontFamily = 'Jua';
+        state.titleText.fontSize = 68;
+        state.titleText.color = null;
+        syncTitleInputsFromState();
+        updateTextEditPanelFromSelection();
+        renderTexts();
+        drawBaseWithStickers('bg-canvas-text');
+        drawFrameCanvas('editor-canvas');
+        return;
+      }
+
       const id = state.selectedItem.id;
       const idx = state.texts.findIndex(t => t.id === id);
       if(idx > -1){
         state.texts.splice(idx, 1);
         state.selectedItem = null;
         state.selectedType = null;
+        updateTextEditPanelFromSelection();
         renderTexts();
+        drawBaseWithStickers('bg-canvas-text');
       }
     }
   });
