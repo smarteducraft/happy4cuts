@@ -55,6 +55,29 @@
     .sticker-item:active{transform:scale(.9);background:#fce7f3;border-color:#f472b6;}
 
     .font-selector{padding:8px;border-radius:8px;border:1px solid #e5e7eb;font-size:14px;cursor:pointer;}
+
+    /* ✅ 카메라 선택 버튼 */
+    .cam-pill{
+      display:flex; align-items:center; justify-content:center;
+      gap:6px;
+      padding:10px 14px;
+      border-radius:9999px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      box-shadow:0 1px 3px rgba(0,0,0,.06);
+      cursor:pointer;
+      transition:all .15s;
+      font-family:'Jua',sans-serif;
+      font-size:16px;
+      color:#374151;
+      min-width:120px;
+    }
+    .cam-pill.active{
+      border-color:#ec4899;
+      box-shadow:0 0 0 3px rgba(236,72,153,.18);
+      color:#be185d;
+    }
+    .cam-pill:active{ transform:scale(.98); }
   </style>
 </head>
 
@@ -116,7 +139,26 @@
           </div>
         </div>
 
-        <div class="flex flex-col items-center gap-6 mb-8 mt-4">
+        <!-- ✅ V3.35: 카메라 선택 + 촬영음 (V3.34 기본 유지) -->
+        <div class="flex flex-col items-center gap-4 mb-8 mt-2">
+
+          <!-- 카메라 선택 -->
+          <div class="flex items-center bg-white px-5 py-4 rounded-[1.4rem] shadow-sm border border-gray-100 gap-4 w-full max-w-[360px] justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="switch-camera" class="w-5 h-5 text-pink-500"></i>
+              <span class="font-jua text-gray-700 text-xl">카메라</span>
+            </div>
+            <div class="flex gap-2">
+              <button id="btn-cam-front" class="cam-pill active" onclick="setCameraFacing('user')">
+                <i data-lucide="user" class="w-4 h-4 text-pink-500"></i> 전면
+              </button>
+              <button id="btn-cam-back" class="cam-pill" onclick="setCameraFacing('environment')">
+                <i data-lucide="camera" class="w-4 h-4 text-gray-600"></i> 후면
+              </button>
+            </div>
+          </div>
+
+          <!-- 촬영음 토글 -->
           <div class="flex items-center bg-white px-6 py-4 rounded-full shadow-sm border border-gray-100 gap-4">
             <span class="font-jua text-gray-700 text-xl">촬영음</span>
             <div class="flex items-center gap-3">
@@ -136,26 +178,15 @@
             class="w-[240px] h-[70px] bg-pink-500 text-white font-jua text-2xl rounded-[1.8rem] shadow-lg flex items-center justify-center gap-2 hover:bg-pink-600 transition active:scale-95 border-b-4 border-pink-700">
             <i data-lucide="camera" class="w-7 h-7"></i> 촬영 시작
           </button>
+
+          <p class="text-[12px] text-gray-400 leading-snug mt-1">
+            * 기본값: 전면 카메라(기본 배율) / 촬영 중에는 변경 불가
+          </p>
         </div>
       </section>
 
       <!-- 2 Camera -->
       <section id="step-camera" class="hidden flex flex-col items-center w-full h-full p-4">
-        <!-- ✅ 카메라 선택 UI -->
-        <div class="w-full mb-3 flex items-center gap-2">
-          <div class="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm px-3 py-2 flex items-center gap-2">
-            <i data-lucide="video" class="w-5 h-5 text-pink-500 shrink-0"></i>
-            <select id="camera-select" class="flex-1 bg-transparent outline-none text-sm font-medium text-gray-700"
-              onchange="onCameraSelectChange()">
-              <option value="">카메라 불러오는 중...</option>
-            </select>
-          </div>
-          <button onclick="refreshCameraList()"
-            class="bg-gray-200 text-gray-700 px-3 py-2 rounded-xl shadow-sm active:scale-95 transition flex items-center gap-1">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          </button>
-        </div>
-
         <div id="camera-container" class="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden shadow-xl mb-6 flex items-center justify-center border-4 border-white">
           <video id="video-feed" autoplay playsinline class="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]"></video>
 
@@ -451,7 +482,6 @@
 
   async function waitForVideoReady(video, timeoutMs=3000){
     if(!video) return false;
-
     if(video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) return true;
 
     return await new Promise(resolve => {
@@ -498,7 +528,7 @@
       { version: "V3.32", note: "촬영음 OFF여도 카운트다운/촬영 절차 시간 동일 유지(무음 지연) + 비디오 준비 대기 후 캡처" },
       { version: "V3.33", note: "촬영음 OFF일 때 카운트다운 각 단계에 +1초 추가(준비시간 여유)" },
       { version: "V3.34", note: "촬영음 OFF일 때 추가 대기시간을 +0.5초로 조정" },
-      { version: "V3.35", note: "촬영 전 카메라(장치) 선택/변경 기능 추가" }
+      { version: "V3.35", note: "촬영 전 전면/후면 카메라 선택 기능 추가(기본: 전면+기본배율)" }
     ],
 
     photos: [],
@@ -517,13 +547,13 @@
 
     _countdownRunning: false,
 
+    // ✅ intro 재생 제어
     _introTimer: null,
     _introAudio: null,
     _introGestureBound: false,
 
-    // ✅ 카메라 선택 상태
-    cameraDevices: [],
-    selectedDeviceId: ''
+    // ✅ V3.35 카메라 선택(기본: 전면)
+    cameraFacing: 'user'
   };
 
   const colors = [
@@ -553,7 +583,29 @@
   ];
 
   // =========================================================
-  // ✅ Sound helpers
+  // ✅ Camera select UI (V3.35)
+  // =========================================================
+  function setCameraFacing(facing){
+    state.cameraFacing = (facing === 'environment') ? 'environment' : 'user';
+
+    const front = document.getElementById('btn-cam-front');
+    const back  = document.getElementById('btn-cam-back');
+    if(front && back){
+      if(state.cameraFacing === 'user'){
+        front.classList.add('active');
+        back.classList.remove('active');
+      }else{
+        back.classList.add('active');
+        front.classList.remove('active');
+      }
+    }
+
+    // 아이콘 컬러도 자연스럽게 갱신
+    lucide.createIcons();
+  }
+
+  // =========================================================
+  // ✅ Sound helpers (V3.34 유지)
   // =========================================================
   function playSoundOnce(src){
     if(!state.soundEnabled) return Promise.resolve(true);
@@ -591,13 +643,13 @@
     });
   }
 
-  // ✅ OFF일 때도 동일 절차 유지(무음 지연) + V3.34: 단계마다 +0.5초 추가
+  // ✅ OFF일 때도 동일 절차 유지(무음 지연) + 단계마다 +0.5초 (V3.34)
   function getFallbackDelayMs(step){
     if(step.label === 'Ready!') return 900;
     if(step.shot) return 500;
     return 650;
   }
-  const OFF_EXTRA_DELAY_MS = 500; // ✅ V3.34 핵심(0.5초)
+  const OFF_EXTRA_DELAY_MS = 500;
 
   async function playStep(step){
     if(state.soundEnabled){
@@ -744,107 +796,6 @@
     }
   }
 
-  // =========================================================
-  // ✅ Camera device selection helpers (V3.35)
-  // =========================================================
-  function stopVideoTracks(video){
-    if(!video) return;
-    if(video.srcObject){
-      try{ video.srcObject.getTracks().forEach(t => t.stop()); }catch(e){}
-      video.srcObject = null;
-    }
-  }
-
-  async function startCameraStreamByDeviceId(deviceId){
-    const video = document.getElementById('video-feed');
-    if(!video) return;
-
-    stopVideoTracks(video);
-
-    const constraints = deviceId
-      ? { video: { deviceId: { exact: deviceId } }, audio: false }
-      : { video: { facingMode: "user" }, audio: false };
-
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    video.srcObject = stream;
-
-    const track = stream.getVideoTracks()[0];
-    const settings = (track && track.getSettings) ? track.getSettings() : {};
-    if(settings && settings.deviceId){
-      state.selectedDeviceId = settings.deviceId;
-    }else{
-      state.selectedDeviceId = deviceId || '';
-    }
-  }
-
-  async function loadCameraDevicesAndRenderSelect(){
-    const sel = document.getElementById('camera-select');
-    if(!sel) return;
-
-    try{
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cams = devices.filter(d => d.kind === 'videoinput');
-      state.cameraDevices = cams;
-
-      sel.innerHTML = '';
-      if(!cams.length){
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = '카메라를 찾을 수 없어요';
-        sel.appendChild(opt);
-        return;
-      }
-
-      // 현재 트랙 deviceId 우선 선택
-      let currentId = state.selectedDeviceId;
-      const video = document.getElementById('video-feed');
-      const track = video && video.srcObject ? video.srcObject.getVideoTracks()[0] : null;
-      const settings = (track && track.getSettings) ? track.getSettings() : null;
-      if(settings && settings.deviceId) currentId = settings.deviceId;
-
-      // 라벨이 비어있을 수 있어 fallback 이름 생성
-      cams.forEach((d, idx) => {
-        const opt = document.createElement('option');
-        opt.value = d.deviceId;
-        opt.textContent = d.label ? d.label : `카메라 ${idx + 1}`;
-        sel.appendChild(opt);
-      });
-
-      // 선택값 결정
-      const exists = cams.some(d => d.deviceId === currentId);
-      sel.value = exists ? currentId : cams[0].deviceId;
-
-      state.selectedDeviceId = sel.value;
-
-    }catch(e){
-      sel.innerHTML = `<option value="">카메라 목록을 불러올 수 없어요</option>`;
-    }
-  }
-
-  async function refreshCameraList(){
-    // 목록만 갱신 (스트림 유지)
-    await loadCameraDevicesAndRenderSelect();
-    lucide.createIcons();
-  }
-
-  async function onCameraSelectChange(){
-    if(state._countdownRunning) return; // 촬영 중 전환 방지
-    const sel = document.getElementById('camera-select');
-    if(!sel) return;
-    const id = sel.value || '';
-    state.selectedDeviceId = id;
-
-    try{
-      await startCameraStreamByDeviceId(id);
-    }catch(e){
-      alert('선택한 카메라로 전환할 수 없어요. 다른 카메라를 선택해 주세요.');
-      try{
-        // 실패 시 목록 다시 로드
-        await loadCameraDevicesAndRenderSelect();
-      }catch(_){}
-    }
-  }
-
   // ---------- Camera ----------
   async function startCamera(){
     state.isCapturing = true;
@@ -859,23 +810,42 @@
     showStep('step-camera');
 
     try{
-      // 1) 권한/스트림 확보 (기본: user)
-      await startCameraStreamByDeviceId('');
+      // ✅ V3.35: 전면/후면 선택 적용(기본: user)
+      const constraints = {
+        video: {
+          facingMode: { ideal: state.cameraFacing }
+        },
+        audio: false
+      };
 
-      // 2) 장치 목록 로드 & 셀렉트 구성 (라벨 노출을 위해 스트림 이후 실행)
-      await loadCameraDevicesAndRenderSelect();
-      lucide.createIcons();
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      // 3) 셀렉트 값이 실제 트랙과 다르면 해당 장치로 재시작
-      const sel = document.getElementById('camera-select');
-      if(sel && sel.value && sel.value !== state.selectedDeviceId){
-        state.selectedDeviceId = sel.value;
-        await startCameraStreamByDeviceId(state.selectedDeviceId);
-      }else if(sel && sel.value){
-        // selectedDeviceId 동기화
-        state.selectedDeviceId = sel.value;
+      const video = document.getElementById('video-feed');
+      video.srcObject = stream;
+
+      // ✅ 후면일 때는 좌우반전이 어색할 수 있으니, 후면이면 미러 제거
+      // (요청사항은 아니지만 사용성 개선 / 전면 기본은 기존처럼 미러 유지)
+      if(state.cameraFacing === 'environment'){
+        video.classList.remove('transform','scale-x-[-1]');
+        video.classList.add('transform'); // object-cover 유지
+      }else{
+        // 전면: 기존처럼 미러
+        video.classList.add('transform','scale-x-[-1]');
       }
 
+      // ✅ 기본 배율(zoom 1.0) 가능한 기기에서는 적용 시도
+      try{
+        const track = stream.getVideoTracks()[0];
+        if(track){
+          const caps = track.getCapabilities ? track.getCapabilities() : null;
+          if(caps && typeof caps.zoom !== 'undefined'){
+            const z = 1.0;
+            await track.applyConstraints({ advanced: [{ zoom: z }] });
+          }
+        }
+      }catch(_){ /* 기기 미지원이면 무시 */ }
+
+      // ✅ 준비완료 버튼 표시(클릭해야만 시작)
       const btn = document.getElementById('btn-ready');
       btn.classList.remove('hidden');
 
@@ -960,15 +930,17 @@
             ctx.setTransform(1,0,0,1,0,0);
             ctx.clearRect(0,0,canvas.width,canvas.height);
 
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
+            // ✅ 전면(user)일 때만 미러 캡처, 후면(environment)은 원본 캡처
+            if(state.cameraFacing === 'user'){
+              ctx.translate(canvas.width, 0);
+              ctx.scale(-1, 1);
+            }
             ctx.drawImage(video, 0, 0);
 
             state.photos.push(canvas.toDataURL('image/jpeg', 0.95));
           }
 
           await playStep(step);
-
           container.classList.remove('flash-effect');
         }
       }
@@ -1603,6 +1575,10 @@
     state.currentTextColor = '#000000';
     state._countdownRunning = false;
     syncSoundToggleUI();
+
+    // ✅ 카메라 기본값도 전면으로 유지(요청: 기본 설정 전면)
+    setCameraFacing('user');
+
     showStep('step-start');
   }
 
@@ -1652,6 +1628,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     initAudioUI();
+
+    // ✅ 기본 카메라: 전면(user)
+    setCameraFacing('user');
+
     showStep('step-start');
   });
 </script>
