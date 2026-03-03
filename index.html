@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>행복네컷 (V3.35)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ 예쁜 글꼴 10개(설치 없이 사용) -->
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&family=Nanum+Pen+Script&family=Nanum+Gothic:wght@400;700&family=Gaegu:wght@400;700&family=Poor+Story&family=Dongle:wght@300;400;700&family=Hi+Melody&family=Do+Hyeon&family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body{
+      font-family:'Noto Sans KR',sans-serif;
+      overscroll-behavior:none;
+      touch-action:none;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    h1,h2,h3,.font-jua{font-family:'Jua',sans-serif;}
+    .font-pen{font-family:'Nanum Pen Script',cursive;}
+    .font-gothic{font-family:'Nanum Gothic',sans-serif;}
+
+    .photo-card.selected{border:4px solid #ec4899;transform:scale(0.95);}
+    .photo-number{
+      position:absolute;top:6px;right:6px;background:#ec4899;color:#fff;
+      width:26px;height:26px;border-radius:9999px;display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:14px;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,.2);
+    }
+
+    @keyframes flash {0%{opacity:1;}50%{opacity:0;background:#fff;}100%{opacity:1;}}
+    .flash-effect{animation:flash .2s;}
+
+    .hide-scrollbar::-webkit-scrollbar{display:none;}
+    .hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+
+    .color-dot{
+      width:28px;height:28px;border-radius:9999px;cursor:pointer;transition:all .2s;
+      border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.1);
+    }
+    .color-dot.active{border-color:#ec4899;transform:scale(1.15);box-shadow:0 0 8px rgba(236,72,153,.4);}
+
+    .preview-container{width:100%;height:100%;position:relative;display:flex;justify-content:center;align-items:center;}
+    .canvas-wrapper{position:relative;height:100%;aspect-ratio:2/6;background:#fff;box-shadow:0 4px 15px rgba(0,0,0,.1);}
+    .layer-canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;}
+
+    .sticker-item{
+      font-size:1.5rem;display:flex;align-items:center;justify-content:center;
+      background:#fdf2f8;border-radius:9999px;cursor:pointer;width:44px;height:44px;
+      transition:all .1s;border:2px solid transparent;box-shadow:0 2px 4px rgba(0,0,0,.05);
+    }
+    .sticker-item:active{transform:scale(.9);background:#fce7f3;border-color:#f472b6;}
+
+    .font-selector{padding:8px;border-radius:8px;border:1px solid #e5e7eb;font-size:14px;cursor:pointer;}
+  </style>
+</head>
+
+<body class="h-[100dvh] w-full bg-gray-100 flex justify-center items-center overflow-hidden text-gray-800">
+  <div class="w-full h-full max-w-[500px] bg-white flex flex-col shadow-2xl relative overflow-hidden">
+
+    <header class="bg-white p-3 shadow-sm flex justify-center items-center z-10 shrink-0 h-14 border-b">
+      <div class="flex items-center gap-2">
+        <i data-lucide="camera" class="text-pink-500 w-6 h-6"></i>
+        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.35</span></h1>
+      </div>
+    </header>
+
+    <main class="flex-1 relative w-full flex flex-col items-center overflow-hidden bg-gray-50">
+
+      <!-- 1 Start -->
+      <section id="step-start" class="text-center w-full h-full flex flex-col p-6 overflow-y-auto hide-scrollbar">
+        <div class="flex-1 flex flex-col justify-center items-center py-4">
+          <div class="bg-white p-10 rounded-[2.5rem] shadow-xl border-[6px] border-pink-100 w-full max-w-[380px] flex flex-col items-center gap-8">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-24 h-24 bg-pink-50 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                <i data-lucide="camera" class="w-14 h-14 text-pink-500"></i>
+              </div>
+              <h2 class="text-3xl font-jua text-pink-600">추억을 찍어요!</h2>
+              <p class="text-lg text-gray-600 font-medium leading-relaxed">
+                행복한 순간을 기록하고<br>스티커와 문구로 꾸며보세요
+              </p>
+            </div>
+
+            <div class="grid grid-cols-4 gap-5 w-full pt-6 border-t border-pink-50">
+              <div class="flex flex-col items-center justify-start gap-2">
+                <div class="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center text-pink-500 shadow-sm">
+                  <i data-lucide="aperture" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[12px] font-jua text-gray-600 leading-none">촬영</span>
+              </div>
+
+              <div class="flex flex-col items-center justify-start gap-2">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shadow-sm">
+                  <i data-lucide="check-square" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[12px] font-jua text-gray-600 leading-none">선택</span>
+              </div>
+
+              <div class="flex flex-col items-center justify-start gap-2">
+                <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500 shadow-sm">
+                  <i data-lucide="palette" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[12px] font-jua text-gray-600 leading-none">프레임</span>
+              </div>
+
+              <div class="flex flex-col items-center justify-start gap-2">
+                <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 shadow-sm">
+                  <i data-lucide="smile" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[12px] font-jua text-gray-600 leading-none">꾸미기</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-6 mb-8 mt-4">
+          <div class="flex items-center bg-white px-6 py-4 rounded-full shadow-sm border border-gray-100 gap-4">
+            <span class="font-jua text-gray-700 text-xl">촬영음</span>
+            <div class="flex items-center gap-3">
+              <span id="label-off-ext" class="text-sm font-bold text-gray-400 transition-colors">OFF</span>
+
+              <div class="relative w-14 h-7 rounded-full bg-pink-500 transition-all flex items-center px-1 cursor-pointer" id="toggle-bg" onclick="toggleSound()">
+                <div id="toggle-circle" class="relative z-10 bg-white w-5 h-5 rounded-full shadow-md transform translate-x-7 transition-transform flex items-center justify-center">
+                  <i data-lucide="volume-2" id="sound-icon" class="w-3 h-3 text-pink-600"></i>
+                </div>
+              </div>
+
+              <span id="label-on-ext" class="text-sm font-bold text-pink-500 transition-colors">ON</span>
+            </div>
+          </div>
+
+          <button id="btn-start-camera" onclick="startCamera()"
+            class="w-[240px] h-[70px] bg-pink-500 text-white font-jua text-2xl rounded-[1.8rem] shadow-lg flex items-center justify-center gap-2 hover:bg-pink-600 transition active:scale-95 border-b-4 border-pink-700">
+            <i data-lucide="camera" class="w-7 h-7"></i> 촬영 시작
+          </button>
+        </div>
+      </section>
+
+      <!-- 2 Camera -->
+      <section id="step-camera" class="hidden flex flex-col items-center w-full h-full p-4">
+        <!-- ✅ 카메라 선택 UI -->
+        <div class="w-full mb-3 flex items-center gap-2">
+          <div class="flex-1 bg-white rounded-xl border border-gray-200 shadow-sm px-3 py-2 flex items-center gap-2">
+            <i data-lucide="video" class="w-5 h-5 text-pink-500 shrink-0"></i>
+            <select id="camera-select" class="flex-1 bg-transparent outline-none text-sm font-medium text-gray-700"
+              onchange="onCameraSelectChange()">
+              <option value="">카메라 불러오는 중...</option>
+            </select>
+          </div>
+          <button onclick="refreshCameraList()"
+            class="bg-gray-200 text-gray-700 px-3 py-2 rounded-xl shadow-sm active:scale-95 transition flex items-center gap-1">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="camera-container" class="relative w-full aspect-[3/4] bg-black rounded-2xl overflow-hidden shadow-xl mb-6 flex items-center justify-center border-4 border-white">
+          <video id="video-feed" autoplay playsinline class="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]"></video>
+
+          <div id="countdown-overlay" class="absolute inset-0 flex items-center justify-center bg-black/30 hidden z-20">
+            <span id="countdown-text" class="text-8xl font-bold text-white font-jua">Ready!</span>
+          </div>
+
+          <button
+            id="btn-ready"
+            onclick="startReadyCountdown()"
+            class="absolute inset-0 m-auto w-[220px] h-[80px]
+                   bg-pink-500 text-white font-jua text-2xl
+                   rounded-[2rem] shadow-xl
+                   flex items-center justify-center
+                   active:scale-95 transition z-30 hidden">
+            준비 완료!
+          </button>
+
+          <div class="absolute top-4 right-4 bg-black/50 text-white px-4 py-2 rounded-full font-mono text-xl z-10">
+            <span id="shot-count">0</span> / 6
+          </div>
+        </div>
+
+        <button onclick="stopCameraAndGoHome()" class="w-full max-w-xs bg-gray-400 text-white py-5 rounded-xl font-jua text-2xl shadow active:scale-95 transition">촬영 취소</button>
+        <canvas id="capture-canvas" class="hidden"></canvas>
+      </section>
+
+      <!-- 3 Select -->
+      <section id="step-select" class="hidden flex flex-col items-center w-full h-full p-6 overflow-hidden">
+        <div class="shrink-0 mb-6 text-center">
+          <h2 class="text-2xl font-jua text-pink-600">4장을 선택하세요!</h2>
+          <p class="text-gray-500 font-medium mt-1 text-base">(<span id="selected-count" class="text-pink-500">0</span> / 4)</p>
+        </div>
+        <div id="photo-grid" class="grid grid-cols-2 gap-2 w-full overflow-y-auto flex-1 hide-scrollbar mb-4 px-20 content-center"></div>
+        <div class="w-full flex gap-4 h-16 shrink-0">
+          <button onclick="restartCamera()" class="flex-1 bg-gray-400 text-white font-jua text-xl rounded-2xl shadow-md active:scale-95 transition">재촬영</button>
+          <button id="btn-confirm-select" onclick="goToFrameStep()" disabled class="flex-[2] bg-gray-300 text-white font-jua text-2xl rounded-2xl shadow-md active:scale-95 transition">선택 완료</button>
+        </div>
+      </section>
+
+      <!-- 4 Frame -->
+      <section id="step-decorate-frame" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
+        <div class="flex-1 w-full flex overflow-hidden gap-4 mb-4">
+          <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col">
+            <h3 class="text-lg font-jua text-pink-500 mb-2 text-center border-b pb-3">프레임 색상</h3>
+            <div id="color-dots-grid" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-3 gap-y-4 gap-x-1 py-4 content-start justify-items-center"></div>
+          </div>
+
+          <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3">
+            <div class="preview-container">
+              <div class="canvas-wrapper">
+                <canvas id="editor-canvas" class="layer-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full flex gap-3 shrink-0 h-16">
+          <button onclick="showStep('step-select')" class="flex-1 bg-gray-200 text-gray-600 font-jua text-xl rounded-xl shadow transition">이전</button>
+          <button onclick="goToStickerStep()" class="flex-[2] bg-pink-500 text-white font-jua text-2xl rounded-xl shadow transition">스티커 꾸미기</button>
+        </div>
+      </section>
+
+      <!-- 5 Sticker -->
+      <section id="step-decorate-sticker" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
+        <div class="flex-1 w-full flex overflow-hidden gap-4 mb-4">
+          <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col">
+            <h3 class="text-lg font-jua text-pink-500 mb-2 text-center border-b pb-3 shrink-0">스티커 선택</h3>
+            <div id="sticker-grid" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-3 gap-y-4 gap-x-2 py-4 content-start justify-items-center"></div>
+
+            <p id="sticker-tip" class="text-[11px] text-gray-400 mt-2 leading-snug">
+              스티커 선택 후 드래그=이동<br>
+              우상단 X표 선택=삭제<br>
+              (키보드 Del 키 클릭도 삭제)<br>
+              우하단 양쪽화살표 드래그=크기조절
+            </p>
+          </div>
+
+          <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3 relative">
+            <div class="preview-container">
+              <div class="canvas-wrapper">
+                <canvas id="bg-canvas-sticker" class="layer-canvas"></canvas>
+                <canvas id="sticker-canvas" class="layer-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full flex gap-3 shrink-0 h-16">
+          <button onclick="showStep('step-decorate-frame')" class="flex-1 bg-gray-200 text-gray-600 font-jua text-xl rounded-xl shadow transition">이전</button>
+          <button onclick="goToTextStep()" class="flex-[2] bg-pink-500 text-white font-jua text-2xl rounded-xl shadow transition">문구 추가하기</button>
+        </div>
+      </section>
+
+      <!-- 6 Text -->
+      <section id="step-decorate-text" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
+        <div class="flex-1 w-full flex overflow-hidden gap-4 mb-4">
+          <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col gap-3">
+            <h3 class="text-lg font-jua text-pink-500 mb-1 text-center border-b pb-3 shrink-0">문구 입력</h3>
+
+            <div class="flex flex-col gap-2">
+              <textarea id="input-text-content" rows="2" placeholder="문구를 입력하세요 (최대 2줄)"
+                class="w-full p-2 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-300 font-gothic text-sm resize-none"></textarea>
+
+              <div class="flex gap-2">
+                <select id="font-selector" class="font-selector flex-1 bg-gray-50">
+                  <option value="Jua" selected>주아체</option>
+                  <option value="Gowun Dodum">고운돋움</option>
+                  <option value="Do Hyeon">도현체</option>
+                  <option value="Gaegu">개구쟁이</option>
+                  <option value="Hi Melody">하이멜로디</option>
+                  <option value="Dongle">동글</option>
+                  <option value="Poor Story">푸어스토리</option>
+                  <option value="Nanum Pen Script">나눔펜</option>
+                  <option value="Nanum Gothic">나눔고딕</option>
+                  <option value="Noto Sans KR">노토산스</option>
+                </select>
+
+                <button onclick="addTextItem()" class="bg-pink-500 text-white px-4 py-2 rounded-xl font-jua shadow-sm hover:bg-pink-600 active:scale-95 transition">추가</button>
+              </div>
+            </div>
+
+            <div class="flex-1 flex flex-col overflow-hidden">
+              <label class="text-xs font-bold text-gray-400 mb-2">글자 색상</label>
+              <div id="text-color-dots" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-4 gap-2 content-start justify-items-center p-1"></div>
+            </div>
+
+            <p id="text-tip" class="text-[11px] text-gray-400 leading-snug">
+              문구 입력 후 드래그=이동<br>
+              우상단 X표 선택=삭제<br>
+              (키보드 Del 키 클릭도 삭제)<br>
+              우하단 양쪽화살표 드래그=크기 조절
+            </p>
+          </div>
+
+          <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3 relative">
+            <div class="preview-container">
+              <div class="canvas-wrapper">
+                <canvas id="bg-canvas-text" class="layer-canvas"></canvas>
+                <canvas id="text-canvas" class="layer-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full flex gap-3 shrink-0 h-16">
+          <button onclick="showStep('step-decorate-sticker')" class="flex-1 bg-gray-200 text-gray-600 font-jua text-xl rounded-xl shadow transition">이전</button>
+          <button onclick="finishDecorate()" class="flex-[2] bg-indigo-600 text-white font-jua text-2xl rounded-xl shadow transition">완성하기</button>
+        </div>
+      </section>
+
+      <!-- 7 Result -->
+      <section id="step-result" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
+        <h2 class="text-2xl font-jua text-indigo-600 mb-3">행복네컷 완성!</h2>
+
+        <div class="flex-1 w-full flex items-center justify-center py-2 overflow-hidden mb-4">
+          <canvas id="print-canvas" class="h-full shadow-2xl rounded-sm"></canvas>
+          <canvas id="print-canvas-4x6" class="hidden"></canvas>
+        </div>
+
+        <div class="w-full flex flex-col gap-3 shrink-0 px-2 max-w-[400px]">
+          <div class="flex gap-2 w-full">
+            <button onclick="downloadResult()" class="flex-1 bg-indigo-500 text-white font-jua text-lg py-3 rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-1">
+              <i data-lucide="download" class="w-5 h-5"></i> 저장 (2x6)
+            </button>
+            <button onclick="downloadPrintResult()" class="flex-1 bg-green-500 text-white font-jua text-lg py-3 rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-1">
+              <i data-lucide="printer" class="w-5 h-5"></i> 출력용 (4x6)
+            </button>
+          </div>
+
+          <div class="flex gap-3 h-14 w-full">
+            <button onclick="showStep('step-decorate-text')" class="flex-1 bg-gray-200 text-gray-600 font-jua text-lg rounded-xl shadow active:scale-95 transition">이전 (꾸미기)</button>
+            <button onclick="resetToHome()" class="flex-1 bg-pink-500 text-white font-jua text-lg rounded-xl shadow active:scale-95 transition">처음으로</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+<script>
+  // =========================================================
+  // ✅ Version control
+  // =========================================================
+  const APP_VERSION = "V3.35";
+
+  // =========================================================
+  // ✅ Handle sizes
+  // =========================================================
+  const HANDLE_VISUAL_R = 24;
+  const HANDLE_HIT_R    = 26;
+  const HANDLE_OFFSET   = 34;
+
+  // =========================================================
+  // ✅ Layout
+  // =========================================================
+  const FRAME_LAYOUT = {
+    canvasW: 600,
+    canvasH: 1800,
+    marginX: 90,
+    titleY: 60,
+    startY: 180,
+    gapY: 30,
+    photoAspectH: 0.72,
+    dateBottomPadding: 60,
+    dateTextTopGap: 40
+  };
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function makeTimeStamp(){
+    const d = new Date();
+    return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+  }
+
+  const makeId = () => {
+    try { return crypto.randomUUID(); }
+    catch { return String(Date.now()) + "_" + Math.random().toString(16).slice(2); }
+  };
+
+  function ensureCanvasSize(canvasId, w=FRAME_LAYOUT.canvasW, h=FRAME_LAYOUT.canvasH){
+    const c = document.getElementById(canvasId);
+    if(!c) return;
+    if(c.width !== w) c.width = w;
+    if(c.height !== h) c.height = h;
+  }
+
+  function getCanvasPoint(canvas, clientX, clientY){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return { x:(clientX - rect.left)*scaleX, y:(clientY - rect.top)*scaleY };
+  }
+
+  function hitHandle(px, py, cx, cy){
+    const dx = px - cx, dy = py - cy;
+    return (dx*dx + dy*dy) <= (HANDLE_HIT_R * HANDLE_HIT_R);
+  }
+
+  function drawImageCover(ctx, img, dx, dy, dWidth, dHeight) {
+    const sWidth = img.naturalWidth || img.width;
+    const sHeight = img.naturalHeight || img.height;
+    const srcAspect = sWidth / sHeight;
+    const destAspect = dWidth / dHeight;
+
+    let sx, sy, sw, sh;
+    if (srcAspect > destAspect) {
+      sh = sHeight;
+      sw = sh * destAspect;
+      sx = (sWidth - sw) / 2;
+      sy = 0;
+    } else {
+      sw = sWidth;
+      sh = sw / destAspect;
+      sx = 0;
+      sy = (sHeight - sh) / 2;
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dWidth, dHeight);
+  }
+
+  function fillTextWithSpacing(ctx, text, x, y, spacingPx){
+    const chars = Array.from(text);
+    const widths = chars.map(ch => ctx.measureText(ch).width);
+    const total = widths.reduce((a,b)=>a+b,0) + spacingPx * (chars.length - 1);
+
+    let startX = x;
+    if(ctx.textAlign === 'center') startX = x - total/2;
+    else if(ctx.textAlign === 'right' || ctx.textAlign === 'end') startX = x - total;
+
+    let cursor = startX;
+    for(let i=0; i<chars.length; i++){
+      ctx.fillText(chars[i], cursor + widths[i]/2, y);
+      cursor += widths[i] + spacingPx;
+    }
+  }
+
+  function getDefaultTextPosition(){
+    const { canvasW, canvasH, marginX, startY, gapY, photoAspectH, dateBottomPadding, dateTextTopGap } = FRAME_LAYOUT;
+    const imgW = canvasW - (marginX * 2);
+    const imgH = imgW * photoAspectH;
+
+    const lastPhotoBottom = startY + 3*(imgH + gapY) + imgH;
+    const dateBaselineY   = canvasH - dateBottomPadding;
+    const textZoneTop     = lastPhotoBottom + dateTextTopGap;
+    const textZoneBottom  = dateBaselineY - 20;
+
+    const y = Math.max(textZoneTop + 10, Math.min((textZoneTop + textZoneBottom)/2, textZoneBottom - 10));
+    const x = canvasW / 2;
+    return { x, y };
+  }
+
+  // ✅ 시간 유지를 위한 헬퍼
+  const waitMs = (ms) => new Promise(r => setTimeout(r, ms));
+
+  async function waitForVideoReady(video, timeoutMs=3000){
+    if(!video) return false;
+
+    if(video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) return true;
+
+    return await new Promise(resolve => {
+      let done = false;
+      const finish = (ok) => {
+        if(done) return;
+        done = true;
+        cleanup();
+        resolve(ok);
+      };
+      const cleanup = () => {
+        video.removeEventListener('loadedmetadata', onReady);
+        video.removeEventListener('canplay', onReady);
+        video.removeEventListener('playing', onReady);
+      };
+      const onReady = () => {
+        if(video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) finish(true);
+      };
+
+      video.addEventListener('loadedmetadata', onReady);
+      video.addEventListener('canplay', onReady);
+      video.addEventListener('playing', onReady);
+
+      setTimeout(() => {
+        if(video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) finish(true);
+        else finish(false);
+      }, timeoutMs);
+    });
+  }
+
+  // ---------- State ----------
+  let state = {
+    version: APP_VERSION,
+    versionHistory: [
+      { version: "V3.21", note: "스티커 단계 핸들 안정화(원 내부 클릭) + 버튼 크기 고정 + TIP 4줄" },
+      { version: "V3.22", note: "문구 단계도 동일 방식(드래그/리사이즈/삭제/Del) 적용 + 완성하기 이동" },
+      { version: "V3.23", note: "사진 4칸 배치 레이아웃 통일 + 문구 기본 위치 + 예쁜 글꼴 10개" },
+      { version: "V3.24", note: "sound/intro + Ready/5~1/Shot MP3 촬영 + 준비완료 버튼" },
+      { version: "V3.25", note: "준비완료 버튼 5초 미입력 시 자동 촬영 시작" },
+      { version: "V3.26", note: "mp3 길이에 맞춘 표시/전환(ended 동기화) + intro 재생 보강" },
+      { version: "V3.28", note: "준비완료 자동시작 제거(클릭 필수) + 회차 간 대기 제거(바로 다음 촬영)" },
+      { version: "V3.30", note: "첫 화면 로딩 1초 후 intro 자동 재생(실패 시 첫 터치에서 1회 재시도)" },
+      { version: "V3.31", note: "첫 화면 아이콘/글자 정렬 및 크기 개선 + step-start 재진입 시마다 sound/intro.mp3 재생" },
+      { version: "V3.32", note: "촬영음 OFF여도 카운트다운/촬영 절차 시간 동일 유지(무음 지연) + 비디오 준비 대기 후 캡처" },
+      { version: "V3.33", note: "촬영음 OFF일 때 카운트다운 각 단계에 +1초 추가(준비시간 여유)" },
+      { version: "V3.34", note: "촬영음 OFF일 때 추가 대기시간을 +0.5초로 조정" },
+      { version: "V3.35", note: "촬영 전 카메라(장치) 선택/변경 기능 추가" }
+    ],
+
+    photos: [],
+    selectedIndices: [],
+    frameStyle: '#ffffff',
+    soundEnabled: true,
+    isCapturing: false,
+    todayStr: new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' }),
+
+    stickers: [],
+    texts: [],
+
+    selectedItem: null,
+    selectedType: null,
+    currentTextColor: '#000000',
+
+    _countdownRunning: false,
+
+    _introTimer: null,
+    _introAudio: null,
+    _introGestureBound: false,
+
+    // ✅ 카메라 선택 상태
+    cameraDevices: [],
+    selectedDeviceId: ''
+  };
+
+  const colors = [
+    '#ffffff', '#f3f4f6', '#d1d5db', '#4b5563', '#1f2937', '#000000',
+    '#FAD0C4', '#FFD1DC', '#FFABAB', '#FFC3A0', '#FF9AA2', '#FFB7B2',
+    '#FFDAC1', '#FFFFD1', '#FFF5BA', '#F9F871', '#FFC75F', '#FFD8B1',
+    '#B5EAD7', '#C7E9B0', '#E2F0CB', '#A8E6CF', '#DCEDC1', '#00C9A7',
+    '#bae1ff', '#BAE1FF', '#C7CEEA', '#A2D2FF', '#00D2FC', '#4D8076'
+  ];
+
+  const textColorPalette = [
+    '#000000', '#ffffff', '#4b5563', '#94a3b8',
+    '#ef4444', '#f97316', '#facc15', '#22c55e',
+    '#10b981', '#06b6d4', '#3b82f6', '#6366f1',
+    '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
+    '#78350f', '#451a03', '#134e4a', '#1e1b4b',
+    '#fca5a5', '#fef08a', '#bbf7d0', '#bfdbfe'
+  ];
+
+  const stickerList = [
+    '❤️','💖','✨','⭐','🍀','🌸','🌈','🔥','🎈','🎉',
+    '🎀','👑','🧸','🍭','🍓','🍑','🍋','🥑','🍕','🍦',
+    '🐶','🐱','🐰','🐼','🦊','🐻','🐣','🦄','🐝',
+    '😊','😍','🥳','😎','🤩','🥰','😜','👻','👽','👾',
+    '💬','💡','🎵','🎨','📸','🕶️','💍','💎','👟','👜',
+    '🌻','🍁','🌙','☁️','🍒','🍩','🍔','🍟','🏀','⚽'
+  ];
+
+  // =========================================================
+  // ✅ Sound helpers
+  // =========================================================
+  function playSoundOnce(src){
+    if(!state.soundEnabled) return Promise.resolve(true);
+    const audio = new Audio(src);
+    audio.currentTime = 0;
+    audio.playsInline = true;
+    return audio.play().then(()=>true).catch(()=>false);
+  }
+
+  async function playSoundAwaitEnd(src){
+    if(!state.soundEnabled) return;
+
+    const audio = new Audio(src);
+    audio.currentTime = 0;
+    audio.playsInline = true;
+
+    const waitLoaded = new Promise(resolve => {
+      const done = () => resolve();
+      audio.addEventListener('loadedmetadata', done, { once:true });
+      audio.addEventListener('canplaythrough', done, { once:true });
+      setTimeout(done, 1200);
+    });
+    await waitLoaded;
+
+    try{
+      await audio.play();
+    }catch(e){
+      await new Promise(r => setTimeout(r, 700));
+      return;
+    }
+
+    await new Promise(resolve => {
+      audio.addEventListener('ended', resolve, { once:true });
+      setTimeout(resolve, 5000);
+    });
+  }
+
+  // ✅ OFF일 때도 동일 절차 유지(무음 지연) + V3.34: 단계마다 +0.5초 추가
+  function getFallbackDelayMs(step){
+    if(step.label === 'Ready!') return 900;
+    if(step.shot) return 500;
+    return 650;
+  }
+  const OFF_EXTRA_DELAY_MS = 500; // ✅ V3.34 핵심(0.5초)
+
+  async function playStep(step){
+    if(state.soundEnabled){
+      await playSoundAwaitEnd(step.sound);
+    }else{
+      await waitMs(getFallbackDelayMs(step) + OFF_EXTRA_DELAY_MS);
+    }
+  }
+
+  // =========================================================
+  // ✅ intro 재생 제어
+  // =========================================================
+  function stopIntroPlayback(){
+    if(state._introTimer){
+      clearTimeout(state._introTimer);
+      state._introTimer = null;
+    }
+    if(state._introAudio){
+      try{
+        state._introAudio.pause();
+        state._introAudio.currentTime = 0;
+      }catch(e){}
+      state._introAudio = null;
+    }
+  }
+
+  function scheduleIntroOnStartEnter(){
+    stopIntroPlayback();
+    if(!state.soundEnabled) return;
+
+    const startStep = document.getElementById('step-start');
+    if(!startStep || startStep.classList.contains('hidden')) return;
+
+    state._introTimer = setTimeout(async () => {
+      const s = document.getElementById('step-start');
+      if(!s || s.classList.contains('hidden')) return;
+      if(!state.soundEnabled) return;
+
+      const audio = new Audio('sound/intro.mp3');
+      audio.currentTime = 0;
+      audio.playsInline = true;
+      state._introAudio = audio;
+
+      try{
+        await audio.play();
+        return;
+      }catch(e){
+        const onFirstGesture = async () => {
+          window.removeEventListener('pointerdown', onFirstGesture, true);
+          window.removeEventListener('touchstart', onFirstGesture, true);
+          window.removeEventListener('click', onFirstGesture, true);
+
+          const ss = document.getElementById('step-start');
+          if(!ss || ss.classList.contains('hidden')) return;
+          if(!state.soundEnabled) return;
+
+          try{
+            const a2 = new Audio('sound/intro.mp3');
+            a2.currentTime = 0;
+            a2.playsInline = true;
+            state._introAudio = a2;
+            await a2.play();
+          }catch(_){}
+        };
+
+        window.addEventListener('pointerdown', onFirstGesture, true);
+        window.addEventListener('touchstart', onFirstGesture, true);
+        window.addEventListener('click', onFirstGesture, true);
+      }
+    }, 1000);
+  }
+
+  // ---------- Step ----------
+  function showStep(stepId){
+    document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(stepId).classList.remove('hidden');
+    lucide.createIcons();
+
+    if(stepId === 'step-start'){
+      scheduleIntroOnStartEnter();
+    }else{
+      stopIntroPlayback();
+    }
+
+    if(stepId === 'step-decorate-frame'){
+      ensureCanvasSize('editor-canvas');
+      drawFrameCanvas('editor-canvas');
+    }
+
+    if(stepId === 'step-decorate-sticker'){
+      ensureCanvasSize('bg-canvas-sticker');
+      ensureCanvasSize('sticker-canvas');
+      drawFrameCanvas('bg-canvas-sticker');
+      renderStickerGrid();
+      initStickerInteractionEvents('sticker-canvas');
+      renderStickers();
+    }
+
+    if(stepId === 'step-decorate-text'){
+      ensureCanvasSize('bg-canvas-text');
+      ensureCanvasSize('text-canvas');
+      drawBaseWithStickers('bg-canvas-text');
+      initTextColorPalette();
+      initTextInteractionEvents('text-canvas');
+      renderTexts();
+    }
+  }
+
+  // ---------- Audio Toggle UI ----------
+  function syncSoundToggleUI(){
+    const bg = document.getElementById('toggle-bg');
+    const circle = document.getElementById('toggle-circle');
+    const icon = document.getElementById('sound-icon');
+    const labelOff = document.getElementById('label-off-ext');
+    const labelOn = document.getElementById('label-on-ext');
+
+    if(state.soundEnabled){
+      bg.classList.remove('bg-gray-300');
+      bg.classList.add('bg-pink-500');
+      circle.classList.remove('translate-x-0');
+      circle.classList.add('translate-x-7');
+      icon.setAttribute('data-lucide','volume-2');
+      labelOn.classList.remove('text-gray-400'); labelOn.classList.add('text-pink-500');
+      labelOff.classList.remove('text-pink-500'); labelOff.classList.add('text-gray-400');
+    }else{
+      bg.classList.remove('bg-pink-500');
+      bg.classList.add('bg-gray-300');
+      circle.classList.remove('translate-x-7');
+      circle.classList.add('translate-x-0');
+      icon.setAttribute('data-lucide','volume-x');
+      labelOff.classList.remove('text-gray-400'); labelOff.classList.add('text-pink-500');
+      labelOn.classList.remove('text-pink-500'); labelOn.classList.add('text-gray-400');
+    }
+    lucide.createIcons();
+  }
+
+  function toggleSound(){
+    state.soundEnabled = !state.soundEnabled;
+    syncSoundToggleUI();
+
+    if(!document.getElementById('step-start').classList.contains('hidden')){
+      if(state.soundEnabled) scheduleIntroOnStartEnter();
+      else stopIntroPlayback();
+    }
+  }
+
+  // =========================================================
+  // ✅ Camera device selection helpers (V3.35)
+  // =========================================================
+  function stopVideoTracks(video){
+    if(!video) return;
+    if(video.srcObject){
+      try{ video.srcObject.getTracks().forEach(t => t.stop()); }catch(e){}
+      video.srcObject = null;
+    }
+  }
+
+  async function startCameraStreamByDeviceId(deviceId){
+    const video = document.getElementById('video-feed');
+    if(!video) return;
+
+    stopVideoTracks(video);
+
+    const constraints = deviceId
+      ? { video: { deviceId: { exact: deviceId } }, audio: false }
+      : { video: { facingMode: "user" }, audio: false };
+
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = stream;
+
+    const track = stream.getVideoTracks()[0];
+    const settings = (track && track.getSettings) ? track.getSettings() : {};
+    if(settings && settings.deviceId){
+      state.selectedDeviceId = settings.deviceId;
+    }else{
+      state.selectedDeviceId = deviceId || '';
+    }
+  }
+
+  async function loadCameraDevicesAndRenderSelect(){
+    const sel = document.getElementById('camera-select');
+    if(!sel) return;
+
+    try{
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      state.cameraDevices = cams;
+
+      sel.innerHTML = '';
+      if(!cams.length){
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '카메라를 찾을 수 없어요';
+        sel.appendChild(opt);
+        return;
+      }
+
+      // 현재 트랙 deviceId 우선 선택
+      let currentId = state.selectedDeviceId;
+      const video = document.getElementById('video-feed');
+      const track = video && video.srcObject ? video.srcObject.getVideoTracks()[0] : null;
+      const settings = (track && track.getSettings) ? track.getSettings() : null;
+      if(settings && settings.deviceId) currentId = settings.deviceId;
+
+      // 라벨이 비어있을 수 있어 fallback 이름 생성
+      cams.forEach((d, idx) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label ? d.label : `카메라 ${idx + 1}`;
+        sel.appendChild(opt);
+      });
+
+      // 선택값 결정
+      const exists = cams.some(d => d.deviceId === currentId);
+      sel.value = exists ? currentId : cams[0].deviceId;
+
+      state.selectedDeviceId = sel.value;
+
+    }catch(e){
+      sel.innerHTML = `<option value="">카메라 목록을 불러올 수 없어요</option>`;
+    }
+  }
+
+  async function refreshCameraList(){
+    // 목록만 갱신 (스트림 유지)
+    await loadCameraDevicesAndRenderSelect();
+    lucide.createIcons();
+  }
+
+  async function onCameraSelectChange(){
+    if(state._countdownRunning) return; // 촬영 중 전환 방지
+    const sel = document.getElementById('camera-select');
+    if(!sel) return;
+    const id = sel.value || '';
+    state.selectedDeviceId = id;
+
+    try{
+      await startCameraStreamByDeviceId(id);
+    }catch(e){
+      alert('선택한 카메라로 전환할 수 없어요. 다른 카메라를 선택해 주세요.');
+      try{
+        // 실패 시 목록 다시 로드
+        await loadCameraDevicesAndRenderSelect();
+      }catch(_){}
+    }
+  }
+
+  // ---------- Camera ----------
+  async function startCamera(){
+    state.isCapturing = true;
+    state.photos = [];
+    state.selectedIndices = [];
+    state.stickers = [];
+    state.texts = [];
+    state.selectedItem = null;
+    state.selectedType = null;
+    state._countdownRunning = false;
+
+    showStep('step-camera');
+
+    try{
+      // 1) 권한/스트림 확보 (기본: user)
+      await startCameraStreamByDeviceId('');
+
+      // 2) 장치 목록 로드 & 셀렉트 구성 (라벨 노출을 위해 스트림 이후 실행)
+      await loadCameraDevicesAndRenderSelect();
+      lucide.createIcons();
+
+      // 3) 셀렉트 값이 실제 트랙과 다르면 해당 장치로 재시작
+      const sel = document.getElementById('camera-select');
+      if(sel && sel.value && sel.value !== state.selectedDeviceId){
+        state.selectedDeviceId = sel.value;
+        await startCameraStreamByDeviceId(state.selectedDeviceId);
+      }else if(sel && sel.value){
+        // selectedDeviceId 동기화
+        state.selectedDeviceId = sel.value;
+      }
+
+      const btn = document.getElementById('btn-ready');
+      btn.classList.remove('hidden');
+
+      document.getElementById('shot-count').innerText = '0';
+    }catch(e){
+      alert('카메라 권한을 확인해주세요.');
+      stopCameraAndGoHome();
+    }
+  }
+
+  function stopCameraAndGoHome(){
+    state._countdownRunning = false;
+    state.isCapturing = false;
+    const video = document.getElementById('video-feed');
+    if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+    showStep('step-start');
+  }
+
+  function restartCamera(){
+    stopCameraAndGoHome();
+    startCamera();
+  }
+
+  // ✅ 준비완료 클릭 후 촬영
+  async function startReadyCountdown(){
+    if(state._countdownRunning) return;
+    state._countdownRunning = true;
+
+    const btn = document.getElementById('btn-ready');
+    btn.classList.add('hidden');
+
+    const video = document.getElementById('video-feed');
+    const canvas = document.getElementById('capture-canvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('countdown-overlay');
+    const countdownText = document.getElementById('countdown-text');
+    const container = document.getElementById('camera-container');
+
+    const sequence = [
+      { label:'Ready!', sound:'sound/ready.mp3' },
+      { label:'5', sound:'sound/5.mp3' },
+      { label:'4', sound:'sound/4.mp3' },
+      { label:'3', sound:'sound/3.mp3' },
+      { label:'2', sound:'sound/2.mp3' },
+      { label:'1', sound:'sound/1.mp3' },
+      { label:'Shot!', sound:'sound/shot.mp3', shot:true }
+    ];
+
+    try{
+      const ok = await waitForVideoReady(video, 3500);
+      if(!ok){
+        alert('카메라 화면 준비가 지연되고 있어요. 다시 시도해 주세요.');
+        stopCameraAndGoHome();
+        return;
+      }
+
+      for(let i=1; i<=6; i++){
+        if(!state.isCapturing) return;
+        document.getElementById('shot-count').innerText = i;
+
+        for(const step of sequence){
+          if(!state.isCapturing) return;
+
+          overlay.classList.remove('hidden');
+          countdownText.innerText = step.label;
+
+          if(step.shot){
+            container.classList.add('flash-effect');
+
+            if(video.videoWidth <= 0 || video.videoHeight <= 0){
+              await waitMs(200);
+            }
+            if(video.videoWidth <= 0 || video.videoHeight <= 0){
+              alert('카메라 해상도를 읽지 못했어요. 다시 시도해 주세요.');
+              stopCameraAndGoHome();
+              return;
+            }
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.setTransform(1,0,0,1,0,0);
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+
+            state.photos.push(canvas.toDataURL('image/jpeg', 0.95));
+          }
+
+          await playStep(step);
+
+          container.classList.remove('flash-effect');
+        }
+      }
+
+      overlay.classList.add('hidden');
+
+      if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+
+      renderPhotoGrid();
+      showStep('step-select');
+
+    } finally {
+      state._countdownRunning = false;
+    }
+  }
+
+  // ---------- Selection ----------
+  function renderPhotoGrid(){
+    const grid = document.getElementById('photo-grid');
+    grid.innerHTML = '';
+
+    state.photos.forEach((src, idx) => {
+      const div = document.createElement('div');
+      div.className = 'relative photo-card bg-white rounded-xl overflow-hidden shadow-md cursor-pointer aspect-square border-2 border-transparent transition-all';
+      div.onclick = () => togglePhotoSelection(idx);
+      div.innerHTML = `<img src="${src}" class="w-full h-full object-cover">`;
+      grid.appendChild(div);
+    });
+
+    updateSelectionUI();
+  }
+
+  function togglePhotoSelection(idx){
+    const sIdx = state.selectedIndices.indexOf(idx);
+    if(sIdx > -1) state.selectedIndices.splice(sIdx, 1);
+    else if(state.selectedIndices.length < 4) state.selectedIndices.push(idx);
+    updateSelectionUI();
+  }
+
+  function updateSelectionUI(){
+    document.querySelectorAll('.photo-card').forEach((card, idx) => {
+      card.classList.remove('selected');
+      const existing = card.querySelector('.photo-number');
+      if(existing) existing.remove();
+
+      const order = state.selectedIndices.indexOf(idx);
+      if(order > -1){
+        card.classList.add('selected');
+        const span = document.createElement('span');
+        span.className = 'photo-number';
+        span.innerText = order + 1;
+        card.appendChild(span);
+      }
+    });
+
+    document.getElementById('selected-count').innerText = state.selectedIndices.length;
+    const btn = document.getElementById('btn-confirm-select');
+    btn.disabled = state.selectedIndices.length !== 4;
+    btn.className = `flex-[2] font-jua rounded-2xl shadow-md transition text-2xl ${
+      state.selectedIndices.length === 4 ? 'bg-pink-500 text-white' : 'bg-gray-300 text-white'
+    }`;
+  }
+
+  // ---------- Frame ----------
+  function goToFrameStep(){
+    initColorPalette();
+    showStep('step-decorate-frame');
+  }
+
+  function initColorPalette(){
+    const grid = document.getElementById('color-dots-grid');
+    grid.innerHTML = '';
+    colors.forEach(color => {
+      const dot = document.createElement('div');
+      dot.className = `color-dot ${state.frameStyle === color ? 'active' : ''}`;
+      dot.style.backgroundColor = color;
+      dot.onclick = () => {
+        state.frameStyle = color;
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        drawFrameCanvas('editor-canvas');
+      };
+      grid.appendChild(dot);
+    });
+  }
+
+  async function drawFrameCanvas(canvasOrId){
+    const canvas = (typeof canvasOrId === 'string') ? document.getElementById(canvasOrId) : canvasOrId;
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    ensureCanvasSize(canvas.id || canvas, FRAME_LAYOUT.canvasW, FRAME_LAYOUT.canvasH);
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = state.frameStyle;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const isDark = ['#000000','#1f2937','#4b5563'].includes(state.frameStyle);
+    ctx.fillStyle = isDark ? '#ffffff' : '#ec4899';
+
+    ctx.font = '68px Jua';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    fillTextWithSpacing(ctx, '행복네컷', canvas.width/2, FRAME_LAYOUT.titleY, 14);
+
+    const margin = FRAME_LAYOUT.marginX;
+    const imgW = canvas.width - (margin * 2);
+    const imgH = imgW * FRAME_LAYOUT.photoAspectH;
+    const startY = FRAME_LAYOUT.startY;
+    const gap = FRAME_LAYOUT.gapY;
+
+    for(let i=0; i<4; i++){
+      const pIdx = state.selectedIndices[i];
+      if(pIdx !== undefined){
+        const img = new Image();
+        img.src = state.photos[pIdx];
+        await new Promise(r => {
+          img.onload = () => {
+            drawImageCover(ctx, img, margin, startY + (i * (imgH + gap)), imgW, imgH);
+            r();
+          };
+          img.onerror = () => r();
+        });
+      }
+    }
+
+    ctx.fillStyle = isDark ? '#aaaaaa' : '#555555';
+    ctx.font = '30px Noto Sans KR';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(state.todayStr, canvas.width/2, canvas.height - FRAME_LAYOUT.dateBottomPadding);
+  }
+
+  // ---------- Sticker ----------
+  function renderStickerGrid(){
+    const grid = document.getElementById('sticker-grid');
+    grid.innerHTML = '';
+    stickerList.forEach(emoji => {
+      const item = document.createElement('div');
+      item.className = 'sticker-item';
+      item.innerText = emoji;
+      item.onclick = () => addSticker(emoji);
+      grid.appendChild(item);
+    });
+  }
+
+  function goToStickerStep(){ showStep('step-decorate-sticker'); }
+  function goToTextStep(){ showStep('step-decorate-text'); }
+
+  function addSticker(emoji){
+    const it = { id: makeId(), text: emoji, x: 300, y: 900, scale: 2.0 };
+    state.stickers.push(it);
+    state.selectedItem = it;
+    state.selectedType = 'sticker';
+    renderStickers();
+  }
+
+  function getStickerBoxCanvas(it){
+    const half = 44 * it.scale;
+    return { x1: it.x - half, y1: it.y - half, x2: it.x + half, y2: it.y + half };
+  }
+
+  function getHandleCentersFromBox(box){
+    const delCx = box.x2 + HANDLE_OFFSET;
+    const delCy = box.y1 - HANDLE_OFFSET;
+    const resCx = box.x2 + HANDLE_OFFSET;
+    const resCy = box.y2 + HANDLE_OFFSET;
+    return { delCx, delCy, resCx, resCy };
+  }
+
+  function drawHandlesFixed(ctx, box){
+    ctx.save();
+    ctx.strokeStyle = '#ec4899';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(box.x1, box.y1, box.x2-box.x1, box.y2-box.y1);
+
+    const { delCx, delCy, resCx, resCy } = getHandleCentersFromBox(box);
+    const r = HANDLE_VISUAL_R;
+
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath(); ctx.arc(delCx, delCy, r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(delCx - r*0.55, delCy - r*0.55);
+    ctx.lineTo(delCx + r*0.55, delCy + r*0.55);
+    ctx.moveTo(delCx + r*0.55, delCy - r*0.55);
+    ctx.lineTo(delCx - r*0.55, delCy + r*0.55);
+    ctx.stroke();
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath(); ctx.arc(resCx, resCy, r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(resCx - r*0.55, resCy - r*0.55);
+    ctx.lineTo(resCx + r*0.55, resCy + r*0.55);
+
+    ctx.moveTo(resCx - r*0.55, resCy - r*0.15);
+    ctx.lineTo(resCx - r*0.55, resCy - r*0.55);
+    ctx.lineTo(resCx - r*0.15, resCy - r*0.55);
+
+    ctx.moveTo(resCx + r*0.55, resCy + r*0.15);
+    ctx.lineTo(resCx + r*0.55, resCy + r*0.55);
+    ctx.lineTo(resCx + r*0.15, resCy + r*0.55);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function renderStickers(){
+    const canvas = document.getElementById('sticker-canvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    state.stickers.forEach(s => {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.scale(s.scale, s.scale);
+      ctx.font = '50px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.text, 0, 0);
+      ctx.restore();
+    });
+
+    if(state.selectedType === 'sticker' && state.selectedItem){
+      const box = getStickerBoxCanvas(state.selectedItem);
+      drawHandlesFixed(ctx, box);
+    }
+  }
+
+  function initStickerInteractionEvents(canvasId){
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+
+    canvas.style.touchAction = 'none';
+
+    canvas.onpointerdown = null;
+    canvas.onpointermove = null;
+    canvas.onpointerup = null;
+    canvas.onpointercancel = null;
+
+    let active = null;
+
+    function hitBox(p, box){
+      return (p.x >= box.x1 && p.x <= box.x2 && p.y >= box.y1 && p.y <= box.y2);
+    }
+
+    function pickSticker(p){
+      for(let i = state.stickers.length - 1; i >= 0; i--){
+        const it = state.stickers[i];
+        const box = getStickerBoxCanvas(it);
+        const { delCx, delCy, resCx, resCy } = getHandleCentersFromBox(box);
+
+        const onDel = hitHandle(p.x, p.y, delCx, delCy);
+        const onRes = hitHandle(p.x, p.y, resCx, resCy);
+        const onBody = hitBox(p, box);
+
+        if(onDel || onRes || onBody){
+          return { item: it, onDel, onRes, onBody };
+        }
+      }
+      return null;
+    }
+
+    function deleteStickerById(id){
+      const idx = state.stickers.findIndex(s => s.id === id);
+      if(idx > -1) state.stickers.splice(idx, 1);
+      state.selectedItem = null;
+      state.selectedType = null;
+      renderStickers();
+    }
+
+    canvas.onpointerdown = (e) => {
+      const p = getCanvasPoint(canvas, e.clientX, e.clientY);
+      const hit = pickSticker(p);
+
+      if(!hit){
+        state.selectedItem = null;
+        state.selectedType = null;
+        renderStickers();
+        return;
+      }
+
+      state.selectedItem = hit.item;
+      state.selectedType = 'sticker';
+      renderStickers();
+
+      if(hit.onDel){
+        deleteStickerById(hit.item.id);
+        return;
+      }
+
+      if(hit.onRes){
+        const cx = hit.item.x;
+        const cy = hit.item.y;
+        const startDist = Math.max(1, Math.hypot(p.x - cx, p.y - cy));
+        active = { mode:'resize', item: hit.item, cx, cy, startDist, startScale: hit.item.scale };
+        canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+
+      active = { mode:'drag', item: hit.item, offsetX: hit.item.x - p.x, offsetY: hit.item.y - p.y };
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    canvas.onpointermove = (e) => {
+      if(!active) return;
+      const p = getCanvasPoint(canvas, e.clientX, e.clientY);
+
+      if(active.mode === 'drag'){
+        active.item.x = p.x + active.offsetX;
+        active.item.y = p.y + active.offsetY;
+        renderStickers();
+        return;
+      }
+
+      if(active.mode === 'resize'){
+        const newDist = Math.max(1, Math.hypot(p.x - active.cx, p.y - active.cy));
+        const ratio = newDist / active.startDist;
+        active.item.scale = Math.min(7, Math.max(0.5, active.startScale * ratio));
+        renderStickers();
+        return;
+      }
+    };
+
+    canvas.onpointerup = () => { active = null; };
+    canvas.onpointercancel = () => { active = null; };
+  }
+
+  // ---------- Text ----------
+  function initTextColorPalette(){
+    const wrap = document.getElementById('text-color-dots');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    textColorPalette.forEach(col => {
+      const d = document.createElement('div');
+      d.className = 'color-dot';
+      d.style.backgroundColor = col;
+      if(col.toLowerCase() === (state.currentTextColor||'').toLowerCase()) d.classList.add('active');
+      d.onclick = () => {
+        state.currentTextColor = col;
+        wrap.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active'));
+        d.classList.add('active');
+        if(state.selectedType === 'text' && state.selectedItem){
+          state.selectedItem.color = col;
+          renderTexts();
+        }
+      };
+      wrap.appendChild(d);
+    });
+  }
+
+  function addTextItem(){
+    const ta = document.getElementById('input-text-content');
+    const fs = document.getElementById('font-selector');
+    const text = (ta.value || '').trim();
+    if(!text) return alert('문구를 입력해 주세요.');
+
+    const pos = getDefaultTextPosition();
+
+    const item = {
+      id: makeId(),
+      text,
+      x: pos.x,
+      y: pos.y,
+      fontSize: 56,
+      fontFamily: fs.value || 'Jua',
+      color: state.currentTextColor || '#000000'
+    };
+    state.texts.push(item);
+    state.selectedItem = item;
+    state.selectedType = 'text';
+    ta.value = '';
+    renderTexts();
+  }
+
+  function getTextBoxCanvas(ctx, t){
+    const fontSize = t.fontSize || 46;
+    const ff = t.fontFamily || 'Jua';
+    ctx.save();
+    ctx.font = `${fontSize}px ${ff}`;
+
+    const lines = String(t.text||'').split('\n').slice(0,2);
+    const widths = lines.map(line => ctx.measureText(line).width);
+    const maxW = Math.max(10, ...widths);
+    const lineH = fontSize * 1.15;
+    const h = lineH * lines.length;
+
+    ctx.restore();
+
+    const padX = 22;
+    const padY = 18;
+
+    return {
+      x1: t.x - (maxW/2) - padX,
+      y1: t.y - (h/2) - padY,
+      x2: t.x + (maxW/2) + padX,
+      y2: t.y + (h/2) + padY,
+      w: maxW + padX*2,
+      h: h + padY*2
+    };
+  }
+
+  function renderTexts(){
+    const canvas = document.getElementById('text-canvas');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    state.texts.forEach(t => {
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      const fs = t.fontSize || 46;
+      const ff = t.fontFamily || 'Jua';
+      ctx.font = `${fs}px ${ff}`;
+      ctx.fillStyle = t.color || '#000';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+
+      const lines = String(t.text||'').split('\n').slice(0,2);
+      const lineH = fs * 1.15;
+      const startY = -(lineH*(lines.length-1))/2;
+      lines.forEach((line,i)=>ctx.fillText(line,0,startY+i*lineH));
+      ctx.restore();
+    });
+
+    if(state.selectedType === 'text' && state.selectedItem){
+      const box = getTextBoxCanvas(ctx, state.selectedItem);
+      drawHandlesFixed(ctx, box);
+    }
+  }
+
+  function initTextInteractionEvents(canvasId){
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+
+    canvas.style.touchAction = 'none';
+
+    canvas.onpointerdown = null;
+    canvas.onpointermove = null;
+    canvas.onpointerup = null;
+    canvas.onpointercancel = null;
+
+    let active = null;
+
+    function hitBox(p, box){
+      return (p.x >= box.x1 && p.x <= box.x2 && p.y >= box.y1 && p.y <= box.y2);
+    }
+
+    function pickText(p){
+      const ctx = canvas.getContext('2d');
+      for(let i = state.texts.length - 1; i >= 0; i--){
+        const it = state.texts[i];
+        const box = getTextBoxCanvas(ctx, it);
+        const { delCx, delCy, resCx, resCy } = getHandleCentersFromBox(box);
+
+        const onDel = hitHandle(p.x, p.y, delCx, delCy);
+        const onRes = hitHandle(p.x, p.y, resCx, resCy);
+        const onBody = hitBox(p, box);
+
+        if(onDel || onRes || onBody){
+          return { item: it, onDel, onRes, onBody };
+        }
+      }
+      return null;
+    }
+
+    function deleteTextById(id){
+      const idx = state.texts.findIndex(t => t.id === id);
+      if(idx > -1) state.texts.splice(idx, 1);
+      state.selectedItem = null;
+      state.selectedType = null;
+      renderTexts();
+    }
+
+    canvas.onpointerdown = (e) => {
+      const p = getCanvasPoint(canvas, e.clientX, e.clientY);
+      const hit = pickText(p);
+
+      if(!hit){
+        state.selectedItem = null;
+        state.selectedType = null;
+        renderTexts();
+        return;
+      }
+
+      state.selectedItem = hit.item;
+      state.selectedType = 'text';
+      renderTexts();
+
+      if(hit.onDel){
+        deleteTextById(hit.item.id);
+        return;
+      }
+
+      if(hit.onRes){
+        const cx = hit.item.x;
+        const cy = hit.item.y;
+        const startDist = Math.max(1, Math.hypot(p.x - cx, p.y - cy));
+        active = { mode:'resize', item: hit.item, cx, cy, startDist, startFontSize: hit.item.fontSize || 56 };
+        canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+
+      active = { mode:'drag', item: hit.item, offsetX: hit.item.x - p.x, offsetY: hit.item.y - p.y };
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    canvas.onpointermove = (e) => {
+      if(!active) return;
+      const p = getCanvasPoint(canvas, e.clientX, e.clientY);
+
+      if(active.mode === 'drag'){
+        active.item.x = p.x + active.offsetX;
+        active.item.y = p.y + active.offsetY;
+        renderTexts();
+        return;
+      }
+
+      if(active.mode === 'resize'){
+        const newDist = Math.max(1, Math.hypot(p.x - active.cx, p.y - active.cy));
+        const ratio = newDist / active.startDist;
+        const newSize = Math.round(active.startFontSize * ratio);
+        active.item.fontSize = Math.min(140, Math.max(18, newSize));
+        renderTexts();
+      }
+    };
+
+    canvas.onpointerup = () => { active = null; };
+    canvas.onpointercancel = () => { active = null; };
+  }
+
+  async function drawBaseWithStickers(canvasId){
+    const canvas = (typeof canvasId === 'string') ? document.getElementById(canvasId) : canvasId;
+    if(!canvas) return;
+    await drawFrameCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    state.stickers.forEach(s => {
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.scale(s.scale, s.scale);
+      ctx.font = '50px serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(s.text, 0, 0);
+      ctx.restore();
+    });
+  }
+
+  // ---------- Result ----------
+  async function buildFinalCanvases(){
+    const baseW = FRAME_LAYOUT.canvasW, baseH = FRAME_LAYOUT.canvasH;
+
+    const out = document.getElementById('print-canvas');
+    out.width = baseW; out.height = baseH;
+
+    await drawFrameCanvas(out);
+    const octx = out.getContext('2d');
+
+    state.stickers.forEach(s => {
+      octx.save();
+      octx.translate(s.x, s.y);
+      octx.scale(s.scale, s.scale);
+      octx.font='50px serif';
+      octx.textAlign='center'; octx.textBaseline='middle';
+      octx.fillText(s.text,0,0);
+      octx.restore();
+    });
+
+    state.texts.forEach(t => {
+      octx.save();
+      octx.translate(t.x, t.y);
+      const fs = t.fontSize || 46;
+      const ff = t.fontFamily || 'Jua';
+      octx.font = `${fs}px ${ff}`;
+      octx.fillStyle = t.color || '#000';
+      octx.textAlign='center'; octx.textBaseline='middle';
+      const lines = String(t.text||'').split('\n').slice(0,2);
+      const lineH = fs*1.15;
+      const startY = -(lineH*(lines.length-1))/2;
+      lines.forEach((line,i)=>octx.fillText(line,0,startY+i*lineH));
+      octx.restore();
+    });
+
+    const out46 = document.getElementById('print-canvas-4x6');
+    out46.width = baseW*2;
+    out46.height = baseH;
+    const pctx = out46.getContext('2d');
+    pctx.setTransform(1,0,0,1,0,0);
+    pctx.clearRect(0,0,out46.width,out46.height);
+    pctx.drawImage(out,0,0);
+    pctx.drawImage(out,baseW,0);
+  }
+
+  async function finishDecorate(){
+    await buildFinalCanvases();
+    showStep('step-result');
+  }
+
+  function downloadResult(){
+    const c = document.getElementById('print-canvas');
+    const a = document.createElement('a');
+    a.href = c.toDataURL('image/jpeg', 0.95);
+    a.download = `행복네컷_${makeTimeStamp()}.jpg`;
+    a.click();
+  }
+
+  function downloadPrintResult(){
+    const c = document.getElementById('print-canvas-4x6');
+    const a = document.createElement('a');
+    a.href = c.toDataURL('image/jpeg', 0.95);
+    a.download = `행복네컷_출력용_${makeTimeStamp()}.jpg`;
+    a.click();
+  }
+
+  function resetToHome(){
+    state.photos = [];
+    state.selectedIndices = [];
+    state.frameStyle = '#ffffff';
+    state.stickers = [];
+    state.texts = [];
+    state.selectedItem = null;
+    state.selectedType = null;
+    state.currentTextColor = '#000000';
+    state._countdownRunning = false;
+    syncSoundToggleUI();
+    showStep('step-start');
+  }
+
+  // ---------- Delete key ----------
+  function isStepVisible(stepId){
+    const el = document.getElementById(stepId);
+    return el && !el.classList.contains('hidden');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Delete') return;
+
+    const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : '';
+    if(tag === 'textarea' || tag === 'input') return;
+
+    if(isStepVisible('step-decorate-sticker') && state.selectedType === 'sticker' && state.selectedItem){
+      e.preventDefault();
+      const id = state.selectedItem.id;
+      const idx = state.stickers.findIndex(s => s.id === id);
+      if(idx > -1){
+        state.stickers.splice(idx, 1);
+        state.selectedItem = null;
+        state.selectedType = null;
+        renderStickers();
+      }
+      return;
+    }
+
+    if(isStepVisible('step-decorate-text') && state.selectedType === 'text' && state.selectedItem){
+      e.preventDefault();
+      const id = state.selectedItem.id;
+      const idx = state.texts.findIndex(t => t.id === id);
+      if(idx > -1){
+        state.texts.splice(idx, 1);
+        state.selectedItem = null;
+        state.selectedType = null;
+        renderTexts();
+      }
+    }
+  });
+
+  function initAudioUI(){
+    syncSoundToggleUI();
+  }
+
+  // ---------- Init ----------
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    initAudioUI();
+    showStep('step-start');
+  });
+</script>
+</body>
+</html>
