@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>행복네컷 (V3.46)</title>
+  <title>행복네컷 (V3.47)</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -131,7 +131,7 @@
     <header class="bg-white p-3 shadow-sm flex justify-center items-center z-10 shrink-0 h-14 border-b">
       <div class="flex items-center gap-2">
         <i data-lucide="camera" class="text-pink-500 w-6 h-6"></i>
-        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.46</span></h1>
+        <h1 class="text-xl font-jua text-pink-600">행복네컷 <span class="text-xs text-gray-400 font-normal">V3.47</span></h1>
       </div>
     </header>
 
@@ -471,7 +471,6 @@
             <button class="px-3 py-1.5 rounded-xl bg-gray-100 font-jua active:scale-95" onclick="closeColorPicker()">닫기</button>
           </div>
 
-          <!-- ✅ title용(기존) / body용(신규) 영역을 JS에서 토글 -->
           <div id="color-palette-title" class="hidden">
             <div class="color-section-title">추천 파스텔</div>
             <div class="grid grid-cols-5 gap-3 mb-4" id="pastel-color-grid"></div>
@@ -508,7 +507,7 @@
   // =========================================================
   // ✅ Version control
   // =========================================================
-  const APP_VERSION = "V3.46";
+  const APP_VERSION = "V3.47";
 
   // =========================================================
   // ✅ Handle sizes
@@ -638,7 +637,10 @@
     flipX: false,
     flipY: false,
 
-    _colorTarget: null
+    _colorTarget: null,
+
+    // ✅ V3.47: intro 음원 1회 재생용
+    _introAudio: null
   };
 
   const colors = [
@@ -649,26 +651,16 @@
     '#BAE1FF', '#C7CEEA', '#A2D2FF', '#00D2FC', '#4D8076'
   ];
 
-  // title 추천(기존 15 유지)
   const pastel15 = [
     '#FFD1DC','#FFB7C5','#FFC9DE','#FFE1C6','#FFD8B1',
     '#FFF1B8','#FFF6CC','#D9F7BE','#B7E4C7','#B5EAD7',
     '#BDE0FE','#A2D2FF','#C7CEEA','#E0BBE4','#FEC8D8'
   ];
 
-  // ✅ (3) body: 파스텔 추천 5 + 단색 10
   const bodyPastel5 = ['#FFD1DC', '#FFE1C6', '#FFF6CC', '#B7E4C7', '#BDE0FE'];
   const bodySolid10 = [
-    '#111827', // 거의 검정
-    '#374151', // 진회색
-    '#6B7280', // 회색
-    '#EF4444', // 빨강
-    '#F97316', // 주황
-    '#EAB308', // 노랑(골드)
-    '#22C55E', // 초록
-    '#06B6D4', // 청록
-    '#3B82F6', // 파랑
-    '#A855F7'  // 보라
+    '#111827','#374151','#6B7280','#EF4444','#F97316',
+    '#EAB308','#22C55E','#06B6D4','#3B82F6','#A855F7'
   ];
 
   const stickerList = [
@@ -1070,6 +1062,24 @@
     });
   }
 
+  // ✅ V3.47: 인트로는 "화면 전환과 동시에" 재생(카메라 로딩을 기다리지 않음)
+  function playIntroOnce(){
+    // 사용자가 'intro.mp3 실행'을 원하므로, soundEnabled가 OFF여도 재생 시도는 합니다.
+    // (브라우저 정책/오디오 상태에 따라 실패할 수 있으며, 그 경우 조용히 무시)
+    try{
+      if(state._introAudio){
+        try{ state._introAudio.pause(); }catch(_){}
+        state._introAudio = null;
+      }
+      const a = new Audio('sound/intro.mp3');
+      a.currentTime = 0;
+      a.playsInline = true;
+      state._introAudio = a;
+      const p = a.play();
+      if(p && typeof p.catch === 'function') p.catch(()=>{});
+    }catch(_){}
+  }
+
   function getFallbackDelayMs(step){
     if(step.label === 'Ready!') return 900;
     if(step.shot) return 500;
@@ -1108,14 +1118,12 @@
     }
 
     if(stepId === 'step-decorate-text'){
-      // ✅ 제목은 기본 자동 생성하지 않음(필요할 때 적용 버튼으로 생성)
       ensureCanvasSize('bg-canvas-text');
       ensureCanvasSize('text-canvas');
       drawBaseWithStickers('bg-canvas-text');
       initTextInteractionEvents('text-canvas');
       renderTexts();
 
-      // 입력 UI 동기화
       if(state.titleEnabled) syncTitleInputsFromState();
       else clearTitleInputs();
 
@@ -1178,7 +1186,10 @@
 
     state.titleEnabled = false;
 
+    // ✅ (요청 1) 촬영 시작 클릭 → 다음 화면으로 전환하면서 intro.mp3 실행
     showStep('step-camera');
+    playIntroOnce();
+
     syncSoundToggleUI();
 
     try{
@@ -1749,7 +1760,6 @@
     }
   }
 
-  // ✅ (2) 제목 “완전 삭제” 처리
   function deleteTitleFully(){
     state.titleEnabled = false;
     state.titleText.text = '행복네컷';
@@ -1760,7 +1770,6 @@
     state.titleText.x = pos.x;
     state.titleText.y = pos.y;
 
-    // 선택 해제
     state.selectedItem = null;
     state.selectedType = null;
 
@@ -1808,7 +1817,6 @@
 
     function deleteTextById(id){
       if(id === state.titleText.id){
-        // ✅ (2) 제목 삭제 가능
         deleteTitleFully();
         return;
       }
@@ -1931,7 +1939,6 @@
 
     if(!modal || !title || !native || !boxTitle || !boxBody || !gridTitle || !gridBodyP || !gridBodyS) return;
 
-    // ✅ 영역 토글
     if(target === 'title'){
       boxTitle.classList.remove('hidden');
       boxBody.classList.add('hidden');
@@ -1999,7 +2006,6 @@
       return;
     }
 
-    // body
     state.currentBodyColor = col;
     if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
       state.selectedItem.color = col;
@@ -2112,6 +2118,13 @@
     state.flipX = false;
     state.flipY = false;
 
+    try{
+      if(state._introAudio){
+        state._introAudio.pause();
+        state._introAudio = null;
+      }
+    }catch(_){}
+
     setCameraFacing('user', false);
     syncSoundToggleUI();
     showStep('step-start');
@@ -2139,7 +2152,6 @@
 
     if(state.selectedType === 'text'){
       if(isTitleItem(state.selectedItem)){
-        // ✅ (2) 제목도 삭제 가능(완전 제거)
         deleteTitleFully();
         return;
       }
