@@ -89,30 +89,26 @@
     }
     .mini-input:focus{ box-shadow:0 0 0 3px rgba(236,72,153,.16); border-color:#f9a8d4; }
 
-    .swatch-btn{
-      width:28px;height:28px;border-radius:9999px;
+    /* ✅ 원형 색상 버튼(현재색 표시) */
+    .color-circle-btn{
+      width:30px;height:30px;border-radius:9999px;
       border:2px solid #fff;
-      box-shadow:0 1px 3px rgba(0,0,0,.12);
+      box-shadow:0 2px 6px rgba(0,0,0,.12);
       cursor:pointer;
-      transition:transform .12s;
+      flex:0 0 auto;
     }
-    .swatch-btn:active{ transform:scale(.95); }
 
-    .modal-backdrop{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      display:flex; align-items:flex-end; justify-content:center;
-      z-index:9999;
-      padding:18px;
-    }
-    .modal-sheet{
-      width:100%;
-      max-width:520px;
+    /* ✅ 팝업(팔레트) */
+    .palette-pop{
+      position:absolute;
+      left:0; right:0;
+      top:42px;
       background:#fff;
-      border-radius:22px;
-      box-shadow:0 10px 30px rgba(0,0,0,.22);
-      overflow:hidden;
-      border:1px solid rgba(0,0,0,.06);
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      box-shadow:0 10px 25px rgba(0,0,0,.12);
+      padding:12px;
+      z-index:50;
     }
   </style>
 </head>
@@ -128,6 +124,45 @@
     </header>
 
     <main class="flex-1 relative w-full flex flex-col items-center overflow-hidden bg-gray-50">
+
+      <!-- ✅ 텍스트 편집 모달 (선택 문구 수정 패널 제거 대체) -->
+      <div id="text-edit-modal" class="hidden absolute inset-0 z-[999] bg-black/40 flex items-center justify-center p-4">
+        <div class="w-full max-w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <span class="font-jua text-lg text-pink-600">문구 편집</span>
+            <button onclick="closeTextEditModal()" class="px-3 py-1.5 rounded-xl bg-gray-100 text-gray-700 font-jua active:scale-95 transition">닫기</button>
+          </div>
+
+          <div class="p-4 flex flex-col gap-3">
+            <textarea id="modal-text-content" rows="3" class="w-full p-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm resize-none" placeholder="내용을 입력하세요 (최대 2줄)"></textarea>
+
+            <div class="grid grid-cols-2 gap-2">
+              <select id="modal-font-selector" class="font-selector bg-white">
+                <option value="Jua" selected>주아체</option>
+                <option value="Gowun Dodum">고운돋움</option>
+                <option value="Do Hyeon">도현체</option>
+                <option value="Gaegu">개구쟁이</option>
+                <option value="Hi Melody">하이멜로디</option>
+                <option value="Dongle">동글</option>
+                <option value="Poor Story">푸어스토리</option>
+                <option value="Nanum Pen Script">나눔펜</option>
+                <option value="Nanum Gothic">나눔고딕</option>
+                <option value="Noto Sans KR">노토산스</option>
+              </select>
+              <input id="modal-font-size" type="number" min="18" max="140" class="mini-input" value="56" />
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <button onclick="applyTextEditModal()" class="flex-1 bg-pink-500 text-white py-3 rounded-xl font-jua shadow active:scale-95 transition">적용</button>
+              <button onclick="deleteFromTextEditModal()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-jua shadow active:scale-95 transition">삭제</button>
+            </div>
+
+            <p class="text-[11px] text-gray-500 leading-snug">
+              캔버스에서 문구를 클릭하면 선택됩니다. (드래그=이동/핸들=크기)
+            </p>
+          </div>
+        </div>
+      </div>
 
       <!-- 1 Start -->
       <section id="step-start" class="text-center w-full h-full flex flex-col p-6 overflow-y-auto hide-scrollbar">
@@ -173,10 +208,13 @@
         </div>
 
         <div class="flex flex-col items-center gap-6 mb-8 mt-2">
-          <!-- ✅ 2) 아이콘/글자 버튼 중앙 정렬 -->
+          <!-- ✅ 아이콘/글자 버튼 중앙 정렬 강화 -->
           <button id="btn-start-camera" onclick="startCamera()"
-            class="w-[240px] h-[70px] bg-pink-500 text-white font-jua text-2xl rounded-[1.8rem] shadow-lg flex items-center justify-center gap-2 hover:bg-pink-600 transition active:scale-95 border-b-4 border-pink-700">
-            <i data-lucide="camera" class="w-7 h-7"></i> 촬영 시작
+            class="w-[240px] h-[70px] bg-pink-500 text-white font-jua text-2xl rounded-[1.8rem] shadow-lg hover:bg-pink-600 transition active:scale-95 border-b-4 border-pink-700 flex items-center justify-center">
+            <span class="flex items-center justify-center gap-2 w-full">
+              <i data-lucide="camera" class="w-7 h-7"></i>
+              <span>촬영 시작</span>
+            </span>
           </button>
         </div>
       </section>
@@ -308,12 +346,7 @@
             <h3 class="text-lg font-jua text-pink-500 mb-2 text-center border-b pb-3 shrink-0">스티커 선택</h3>
             <div id="sticker-grid" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-3 gap-y-4 gap-x-2 py-4 content-start justify-items-center"></div>
 
-            <p id="sticker-tip" class="text-[11px] text-gray-400 mt-2 leading-snug">
-              스티커 선택 후 드래그=이동<br>
-              우상단 X표 선택=삭제<br>
-              (키보드 Del 키 클릭도 삭제)<br>
-              우하단 양쪽화살표 드래그=크기조절
-            </p>
+            <!-- ✅ 설명 문구 제거(요청사항) -->
           </div>
 
           <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3">
@@ -336,13 +369,13 @@
       <section id="step-decorate-text" class="hidden flex flex-col items-center w-full h-full p-4 overflow-hidden">
         <div class="flex-1 w-full flex overflow-hidden gap-4 mb-4">
           <div class="flex-1 bg-white rounded-2xl p-4 shadow-md border border-gray-100 flex flex-col gap-3 overflow-hidden">
+            <!-- ✅ "문구 입력/수정" -> "문구 입력" -->
             <h3 class="text-lg font-jua text-pink-500 mb-1 text-center border-b pb-3 shrink-0">문구 입력</h3>
 
-            <!-- ✅ Title block -->
+            <!-- ✅ 제목 박스 -->
             <div class="rounded-xl border border-pink-100 bg-pink-50/40 p-3">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-bold text-pink-600">제목</span>
-
+                <span class="text-sm font-bold text-pink-600 font-jua">제목</span>
                 <button onclick="applyTitleFromInputs()"
                         class="bg-pink-500 text-white px-3 py-1.5 rounded-xl font-jua shadow-sm hover:bg-pink-600 active:scale-95 transition">
                   적용
@@ -367,56 +400,98 @@
                 <input id="title-font-size" type="number" min="18" max="140" class="mini-input" value="68" />
               </div>
 
-              <!-- ✅ 3) 제목 색깔 설정: 글꼴 선택 아래로 이동 -->
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-xs font-bold text-gray-500">제목 색깔</span>
-                <button id="btn-title-color"
-                        class="swatch-btn"
-                        onclick="openColorPicker('title')"
-                        title="제목 색깔 변경"></button>
+              <!-- ✅ 제목 색깔: 글꼴 선택 아래로 이동 -->
+              <div class="mt-3 relative">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-bold text-pink-600 font-jua">제목 색깔</span>
+
+                  <div class="flex items-center gap-2">
+                    <button id="btn-title-color-circle" class="color-circle-btn" onclick="toggleTitlePalette()" title="제목 색깔"></button>
+                    <button class="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-jua shadow-sm active:scale-95 transition" onclick="toggleTitleCustom()">
+                      원하는 색상
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 추천 팔레트 -->
+                <div id="title-palette-pop" class="palette-pop hidden">
+                  <div class="grid grid-cols-5 gap-2">
+                    <!-- JS inject -->
+                  </div>
+                </div>
+
+                <!-- 커스텀 색상 -->
+                <div id="title-custom-pop" class="palette-pop hidden">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="text-sm text-gray-700 font-jua">색상 선택</span>
+                    <input id="title-color-picker" type="color" class="w-14 h-10 p-0 border-0 bg-transparent" />
+                  </div>
+                  <button class="mt-3 w-full bg-pink-500 text-white py-2 rounded-xl font-jua shadow active:scale-95 transition" onclick="applyTitlePickerColor()">적용</button>
+                </div>
               </div>
             </div>
 
-            <!-- ✅ 4) "(아래) 원하는 내용 입력" 글자 스타일: 제목과 같은 색/글꼴 -->
-            <div class="text-sm font-jua text-pink-600 -mt-1">(아래) 원하는 내용 입력</div>
+            <!-- ✅ (아래) 원하는 내용 입력: 제목과 같은 색/글꼴 -->
+            <div class="mt-4">
+              <div class="text-pink-600 font-jua font-bold mb-2">(아래) 원하는 내용 입력</div>
 
-            <!-- Bottom text input -->
-            <div class="flex flex-col gap-2">
-              <textarea id="input-text-content" rows="2" placeholder="하단 문구를 입력하세요 (최대 2줄)"
-                class="w-full p-2 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-300 font-gothic text-sm resize-none"></textarea>
+              <!-- ✅ 하단 문구 입력창도 둥근 사각형 배경 -->
+              <div class="rounded-xl border border-pink-100 bg-pink-50/40 p-3">
+                <textarea id="input-text-content" rows="2" placeholder="하단 문구를 입력하세요 (최대 2줄)"
+                  class="w-full p-2 border rounded-xl bg-white/80 focus:outline-none focus:ring-2 focus:ring-pink-300 font-gothic text-sm resize-none"></textarea>
 
-              <div class="flex gap-2 items-center">
-                <select id="font-selector" class="font-selector flex-1 bg-gray-50">
-                  <option value="Jua" selected>주아체</option>
-                  <option value="Gowun Dodum">고운돋움</option>
-                  <option value="Do Hyeon">도현체</option>
-                  <option value="Gaegu">개구쟁이</option>
-                  <option value="Hi Melody">하이멜로디</option>
-                  <option value="Dongle">동글</option>
-                  <option value="Poor Story">푸어스토리</option>
-                  <option value="Nanum Pen Script">나눔펜</option>
-                  <option value="Nanum Gothic">나눔고딕</option>
-                  <option value="Noto Sans KR">노토산스</option>
-                </select>
+                <div class="flex gap-2 mt-2">
+                  <select id="font-selector" class="font-selector flex-1 bg-white">
+                    <option value="Jua" selected>주아체</option>
+                    <option value="Gowun Dodum">고운돋움</option>
+                    <option value="Do Hyeon">도현체</option>
+                    <option value="Gaegu">개구쟁이</option>
+                    <option value="Hi Melody">하이멜로디</option>
+                    <option value="Dongle">동글</option>
+                    <option value="Poor Story">푸어스토리</option>
+                    <option value="Nanum Pen Script">나눔펜</option>
+                    <option value="Nanum Gothic">나눔고딕</option>
+                    <option value="Noto Sans KR">노토산스</option>
+                  </select>
 
-                <button onclick="addTextItem()" class="bg-pink-500 text-white px-4 py-2 rounded-xl font-jua shadow-sm hover:bg-pink-600 active:scale-95 transition">추가</button>
-              </div>
+                  <button onclick="addTextItem()" class="bg-pink-500 text-white px-4 py-2 rounded-xl font-jua shadow-sm hover:bg-pink-600 active:scale-95 transition">추가</button>
+                </div>
 
-              <!-- ✅ 5) 문구 색깔 옆 안내 문구 제거 -->
-              <div class="flex items-center gap-2 mt-1">
-                <span class="text-xs font-bold text-gray-500">문구 색깔</span>
-                <button id="btn-body-color"
-                        class="swatch-btn"
-                        onclick="openColorPicker('body')"
-                        title="문구 색깔 변경"></button>
+                <!-- ✅ 문구 색깔: 옆 텍스트 제거 + 원형 버튼 + 추천/원하는색상 -->
+                <div class="mt-3 relative">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-gray-700 font-jua">문구 색깔</span>
+                    <div class="flex items-center gap-2">
+                      <button id="btn-body-color-circle" class="color-circle-btn" onclick="toggleBodyPalette()" title="문구 색깔"></button>
+                      <button class="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-jua shadow-sm active:scale-95 transition" onclick="toggleBodyCustom()">
+                        원하는 색상
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="body-palette-pop" class="palette-pop hidden">
+                    <div class="grid grid-cols-5 gap-2">
+                      <!-- JS inject -->
+                    </div>
+                  </div>
+
+                  <div id="body-custom-pop" class="palette-pop hidden">
+                    <div class="flex items-center justify-between gap-3">
+                      <span class="text-sm text-gray-700 font-jua">색상 선택</span>
+                      <input id="body-color-picker" type="color" class="w-14 h-10 p-0 border-0 bg-transparent" />
+                    </div>
+                    <button class="mt-3 w-full bg-pink-500 text-white py-2 rounded-xl font-jua shadow active:scale-95 transition" onclick="applyBodyPickerColor()">적용</button>
+                  </div>
+                </div>
+
+                <!-- ✅ 안내 문구(요청 문구로) -->
+                <p class="text-[11px] text-gray-500 mt-3 leading-snug">
+                  캔버스에서 문구를 클릭하면 선택됩니다. (드래그=이동/핸들=크기)
+                </p>
               </div>
             </div>
 
-            <!-- (기존 팔레트 영역: 숨김 유지) -->
-            <div class="hidden flex-1 flex flex-col overflow-hidden">
-              <label class="text-xs font-bold text-gray-400 mb-2">글자 색상</label>
-              <div id="text-color-dots" class="flex-1 overflow-y-auto hide-scrollbar grid grid-cols-4 gap-2 content-start justify-items-center p-1"></div>
-            </div>
+            <!-- ✅ "선택 문구 수정" 관련 UI 제거 완료 -->
           </div>
 
           <div class="flex-1 flex items-center justify-center bg-gray-200/40 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden p-3">
@@ -463,8 +538,6 @@
 
     </main>
   </div>
-
-  <div id="color-modal-root" class="hidden"></div>
 
 <script>
   // =========================================================
@@ -588,7 +661,9 @@
 
     selectedItem: null,
     selectedType: null,
-    currentTextColor: '#000000',
+
+    // ✅ 현재 문구 기본색(새 문구 + 선택 문구에 적용)
+    currentBodyColor: '#000000',
 
     _countdownRunning: false,
 
@@ -605,12 +680,25 @@
     '#bae1ff', '#BAE1FF', '#C7CEEA', '#A2D2FF', '#00D2FC', '#4D8076'
   ];
 
-  const PASTEL_15 = [
-    '#FFD6E0', '#FFE5D9', '#FFF1C1', '#E8F7D6', '#D6F5F0',
-    '#D7E9FF', '#E6DDFF', '#F3D7FF', '#FFD9F2', '#FFE0F0',
-    '#FDE2E4', '#E2ECE9', '#E8E8FF', '#DCEEFF', '#E7F0FF'
+  // ✅ 은은한 파스텔 추천 15
+  const pastel15 = [
+    '#FFD1DC', '#FFB7C5', '#FFC9DE', '#FAD0C4', '#FFE5B4',
+    '#FFF5BA', '#FFFFD1', '#E2F0CB', '#C7E9B0', '#B5EAD7',
+    '#C7CEEA', '#BAE1FF', '#A2D2FF', '#D7C0FF', '#F3C4FB'
   ];
 
+  const stickerList = [
+    '❤️','💖','✨','⭐','🍀','🌸','🌈','🔥','🎈','🎉',
+    '🎀','👑','🧸','🍭','🍓','🍑','🍋','🥑','🍕','🍦',
+    '🐶','🐱','🐰','🐼','🦊','🐻','🐣','🦄','🐝',
+    '😊','😍','🥳','😎','🤩','🥰','😜','👻','👽','👾',
+    '💬','💡','🎵','🎨','📸','🕶️','💍','💎','👟','👜',
+    '🌻','🍁','🌙','☁️','🍒','🍩','🍔','🍟','🏀','⚽'
+  ];
+
+  // =========================================================
+  // ✅ Title positioning helpers
+  // =========================================================
   function getTitleDefaultPosition(fontSize){
     const safeTop = 20;
     const safeBottom = FRAME_LAYOUT.startY - 20;
@@ -628,93 +716,6 @@
   }
   function isTitleItem(it){ return it && it.role === 'title'; }
 
-  function getCurrentTitleColor(){
-    return (state.titleText.color ?? defaultTitleColorForFrame());
-  }
-  function getCurrentBodyColor(){
-    if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
-      return state.selectedItem.color || state.currentTextColor || '#000000';
-    }
-    return state.currentTextColor || '#000000';
-  }
-
-  function syncColorSwatches(){
-    const tbtn = document.getElementById('btn-title-color');
-    const bbtn = document.getElementById('btn-body-color');
-    if(tbtn) tbtn.style.background = getCurrentTitleColor();
-    if(bbtn) bbtn.style.background = getCurrentBodyColor();
-  }
-
-  function openColorPicker(target){
-    const root = document.getElementById('color-modal-root');
-    if(!root) return;
-
-    const current = (target === 'title') ? getCurrentTitleColor() : getCurrentBodyColor();
-
-    root.className = '';
-    root.innerHTML = `
-      <div class="modal-backdrop" onclick="closeColorPicker(event)">
-        <div class="modal-sheet" onclick="event.stopPropagation()">
-          <div class="p-4 border-b flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full border" style="background:${current}"></div>
-              <div class="font-jua text-lg text-gray-800">${target === 'title' ? '제목 색깔' : '문구 색깔'}</div>
-            </div>
-            <button class="px-3 py-1.5 rounded-xl bg-gray-200 text-gray-700 font-jua active:scale-95" onclick="closeColorPicker()">닫기</button>
-          </div>
-
-          <div class="p-4">
-            <div class="text-sm font-bold text-gray-600 mb-2">추천 파스텔</div>
-            <div class="grid grid-cols-5 gap-3 mb-4">
-              ${PASTEL_15.map(c => `
-                <button class="swatch-btn" style="background:${c}" onclick="pickColor('${target}','${c}')"></button>
-              `).join('')}
-            </div>
-
-            <div class="flex items-center justify-between gap-3">
-              <div class="text-sm font-bold text-gray-600">원하는 색상 조절</div>
-              <label class="bg-white border border-gray-200 px-3 py-2 rounded-xl font-jua text-sm shadow-sm cursor-pointer active:scale-95">
-                색상 선택
-                <input id="native-color" type="color" value="${current}" class="hidden" onchange="pickColor('${target}', this.value)" />
-              </label>
-            </div>
-
-            <p class="text-[11px] text-gray-400 mt-3 leading-snug">
-              ※ 캔버스에서 문구를 먼저 클릭하면 해당 문구 색을 바로 바꿀 수 있어요.
-            </p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function closeColorPicker(){
-    const root = document.getElementById('color-modal-root');
-    if(!root) return;
-    root.classList.add('hidden');
-    root.innerHTML = '';
-  }
-
-  function pickColor(target, color){
-    if(target === 'title'){
-      state.titleText.color = color;
-      if(isStepVisible('step-decorate-text')){
-        renderTexts();
-        drawBaseWithStickers('bg-canvas-text');
-      }
-    }else{
-      if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
-        state.selectedItem.color = color;
-      }
-      state.currentTextColor = color;
-      if(isStepVisible('step-decorate-text')){
-        renderTexts();
-        drawBaseWithStickers('bg-canvas-text');
-      }
-    }
-    syncColorSwatches();
-  }
-
   function syncTitleInputsFromState(){
     const t = state.titleText;
     const inp = document.getElementById('input-title-content');
@@ -723,7 +724,6 @@
     if(inp) inp.value = t.text || '';
     if(fs) fs.value = t.fontFamily || 'Jua';
     if(sz) sz.value = t.fontSize || 68;
-    syncColorSwatches();
   }
 
   function applyTitleFromInputs(){
@@ -750,10 +750,13 @@
     if(isStepVisible('step-decorate-text')){
       renderTexts();
       drawBaseWithStickers('bg-canvas-text');
-      syncColorSwatches();
+      syncTitleColorCircleUI();
     }
   }
 
+  // =========================================================
+  // ✅ Select step: Add existing photos
+  // =========================================================
   async function handleAddPhotos(event){
     const files = Array.from(event.target.files || []);
     if(!files.length) return;
@@ -805,6 +808,9 @@
     updateSelectionUI();
   }
 
+  // =========================================================
+  // ✅ Camera helpers
+  // =========================================================
   async function stopStream(){
     const video = document.getElementById('video-feed');
     try{
@@ -913,7 +919,10 @@
 
     if(restartIfOnCamera && isStepVisible('step-camera') && state.isCapturing){
       const btn = document.getElementById('btn-ready');
-      if(btn) btn.classList.remove('hidden');
+      if(btn){
+        btn.style.display = '';
+        btn.classList.remove('hidden');
+      }
 
       await stopStream();
       try{
@@ -928,6 +937,9 @@
     await setCameraFacing(facing, true);
   }
 
+  // =========================================================
+  // ✅ Sound helpers
+  // =========================================================
   async function playSoundAwaitEnd(src){
     if(!state.soundEnabled) return;
 
@@ -971,6 +983,9 @@
     }
   }
 
+  // =========================================================
+  // ✅ Step switch
+  // =========================================================
   function showStep(stepId){
     document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
     document.getElementById(stepId).classList.remove('hidden');
@@ -1009,10 +1024,15 @@
       initTextInteractionEvents('text-canvas');
       renderTexts();
       syncTitleInputsFromState();
-      syncColorSwatches();
+
+      initTitleColorUI();
+      initBodyColorUI();
     }
   }
 
+  // =========================================================
+  // ✅ Audio Toggle UI
+  // =========================================================
   function syncSoundToggleUI(){
     const bg = document.getElementById('toggle-bg');
     const circle = document.getElementById('toggle-circle');
@@ -1046,6 +1066,9 @@
     syncSoundToggleUI();
   }
 
+  // =========================================================
+  // ✅ Camera flow
+  // =========================================================
   async function startCamera(){
     state.isCapturing = true;
 
@@ -1066,12 +1089,16 @@
 
     try{
       try{ await refreshCameraDeviceCache(); }catch(_){}
+
       await stopStream();
       await startStreamWithFacing();
 
+      // ✅ "준비 완료" 버튼 확실히 표시(이전 상태 영향 제거)
       const btn = document.getElementById('btn-ready');
-      btn.classList.remove('hidden');
-      document.getElementById('countdown-overlay')?.classList.add('hidden');
+      if(btn){
+        btn.style.display = '';
+        btn.classList.remove('hidden');
+      }
 
       document.getElementById('shot-count').innerText = '0';
     }catch(e){
@@ -1097,8 +1124,11 @@
     state._countdownRunning = true;
 
     const btn = document.getElementById('btn-ready');
-    btn.classList.add('hidden');
-    btn.style.display = 'none';
+    // ✅ "준비 완료" 버튼이 안 사라지는 문제 방지(클래스+display 이중 처리)
+    if(btn){
+      btn.classList.add('hidden');
+      btn.style.display = 'none';
+    }
 
     const video = document.getElementById('video-feed');
     const canvas = document.getElementById('capture-canvas');
@@ -1169,7 +1199,6 @@
       }
 
       overlay.classList.add('hidden');
-
       await stopStream();
 
       renderPhotoGrid();
@@ -1177,13 +1206,12 @@
 
     } finally {
       state._countdownRunning = false;
-      const btnReady = document.getElementById('btn-ready');
-      if(btnReady){
-        btnReady.style.display = '';
-      }
     }
   }
 
+  // =========================================================
+  // ✅ Selection
+  // =========================================================
   function renderPhotoGrid(){
     const grid = document.getElementById('photo-grid');
     grid.innerHTML = '';
@@ -1238,6 +1266,9 @@
     }`;
   }
 
+  // =========================================================
+  // ✅ Frame draw
+  // =========================================================
   async function drawFrameCanvas(canvasOrId){
     const canvas = (typeof canvasOrId === 'string') ? document.getElementById(canvasOrId) : canvasOrId;
     if(!canvas) return;
@@ -1312,6 +1343,9 @@
     ctx.fillText(state.todayStr, canvas.width/2, canvas.height - FRAME_LAYOUT.dateBottomPadding);
   }
 
+  // =========================================================
+  // ✅ Frame step
+  // =========================================================
   function goToFrameStep(){
     initColorPalette();
     showStep('step-decorate-frame');
@@ -1329,25 +1363,14 @@
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
         drawFrameCanvas('editor-canvas');
-        syncColorSwatches();
-        if(isStepVisible('step-decorate-text')){
-          renderTexts();
-          drawBaseWithStickers('bg-canvas-text');
-        }
       };
       grid.appendChild(dot);
     });
   }
 
-  const stickerList = [
-    '❤️','💖','✨','⭐','🍀','🌸','🌈','🔥','🎈','🎉',
-    '🎀','👑','🧸','🍭','🍓','🍑','🍋','🥑','🍕','🍦',
-    '🐶','🐱','🐰','🐼','🦊','🐻','🐣','🦄','🐝',
-    '😊','😍','🥳','😎','🤩','🥰','😜','👻','👽','👾',
-    '💬','💡','🎵','🎨','📸','🕶️','💍','💎','👟','👜',
-    '🌻','🍁','🌙','☁️','🍒','🍩','🍔','🍟','🏀','⚽'
-  ];
-
+  // =========================================================
+  // ✅ Sticker
+  // =========================================================
   function renderStickerGrid(){
     const grid = document.getElementById('sticker-grid');
     grid.innerHTML = '';
@@ -1449,6 +1472,16 @@
     }
   }
 
+  function deleteSelectedSticker(){
+    if(!(state.selectedType === 'sticker' && state.selectedItem)) return;
+    const id = state.selectedItem.id;
+    const idx = state.stickers.findIndex(s => s.id === id);
+    if(idx > -1) state.stickers.splice(idx, 1);
+    state.selectedItem = null;
+    state.selectedType = null;
+    renderStickers();
+  }
+
   function initStickerInteractionEvents(canvasId){
     const canvas = document.getElementById(canvasId);
     if(!canvas) return;
@@ -1483,14 +1516,6 @@
       return null;
     }
 
-    function deleteStickerById(id){
-      const idx = state.stickers.findIndex(s => s.id === id);
-      if(idx > -1) state.stickers.splice(idx, 1);
-      state.selectedItem = null;
-      state.selectedType = null;
-      renderStickers();
-    }
-
     canvas.onpointerdown = (e) => {
       const p = getCanvasPoint(canvas, e.clientX, e.clientY);
       const hit = pickSticker(p);
@@ -1507,7 +1532,7 @@
       renderStickers();
 
       if(hit.onDel){
-        deleteStickerById(hit.item.id);
+        deleteSelectedSticker(); // ✅ X표 삭제
         return;
       }
 
@@ -1548,6 +1573,25 @@
     canvas.onpointercancel = () => { active = null; };
   }
 
+  // ✅ 키보드 Del 로 스티커 삭제
+  function onGlobalKeyDown(e){
+    const key = e.key || '';
+    if(key === 'Delete' || key === 'Backspace'){
+      if(isStepVisible('step-decorate-sticker')){
+        deleteSelectedSticker();
+      }
+      if(isStepVisible('step-decorate-text')){
+        // 텍스트 단계에서도 선택된 문구 삭제 가능(모달 없이도)
+        if(state.selectedType === 'text' && state.selectedItem){
+          deleteTextById(state.selectedItem.id);
+        }
+      }
+    }
+  }
+
+  // =========================================================
+  // ✅ Text
+  // =========================================================
   function getDefaultTextPosition(){
     const { canvasW, canvasH, marginX, startY, gapY, photoAspectH, dateBottomPadding, dateTextTopGap } = FRAME_LAYOUT;
     const imgW = canvasW - (marginX * 2);
@@ -1563,29 +1607,11 @@
     return { x, y };
   }
 
-  function syncBottomInputsFromSelection(){
-    if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
-      const ta = document.getElementById('input-text-content');
-      const fs = document.getElementById('font-selector');
-      if(ta) ta.value = state.selectedItem.text || '';
-      if(fs) fs.value = state.selectedItem.fontFamily || 'Jua';
-      syncColorSwatches();
-    }
-  }
-
   function addTextItem(){
     const ta = document.getElementById('input-text-content');
     const fs = document.getElementById('font-selector');
     const text = (ta.value || '').trim();
     if(!text) return alert('문구를 입력해 주세요.');
-
-    if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
-      state.selectedItem.text = text;
-      state.selectedItem.fontFamily = fs.value || state.selectedItem.fontFamily || 'Jua';
-      renderTexts();
-      drawBaseWithStickers('bg-canvas-text');
-      return;
-    }
 
     const pos = getDefaultTextPosition();
 
@@ -1597,16 +1623,16 @@
       y: pos.y,
       fontSize: 56,
       fontFamily: fs.value || 'Jua',
-      color: state.currentTextColor || '#000000'
+      color: state.currentBodyColor || '#000000'
     };
     state.texts.push(item);
 
     state.selectedItem = item;
     state.selectedType = 'text';
 
+    ta.value = '';
     renderTexts();
     drawBaseWithStickers('bg-canvas-text');
-    syncColorSwatches();
   }
 
   function getTextBoxCanvas(ctx, t){
@@ -1672,6 +1698,90 @@
     }
   }
 
+  function deleteTextById(id){
+    if(id === state.titleText.id){
+      state.titleText.text = '행복네컷';
+      state.titleText.fontFamily = 'Jua';
+      state.titleText.fontSize = 68;
+      state.titleText.color = null;
+
+      const pos = getTitleDefaultPosition(state.titleText.fontSize);
+      state.titleText.x = pos.x;
+      state.titleText.y = pos.y;
+
+      syncTitleInputsFromState();
+      syncTitleColorCircleUI();
+      renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
+      return;
+    }
+
+    const idx = state.texts.findIndex(t => t.id === id);
+    if(idx > -1) state.texts.splice(idx, 1);
+    state.selectedItem = null;
+    state.selectedType = null;
+    renderTexts();
+    drawBaseWithStickers('bg-canvas-text');
+  }
+
+  // ✅ 탭하면 모달로 내용/글꼴 변경(드래그는 그대로)
+  let modalTargetId = null;
+
+  function openTextEditModal(item){
+    if(!item) return;
+    modalTargetId = item.id;
+
+    const m = document.getElementById('text-edit-modal');
+    const ta = document.getElementById('modal-text-content');
+    const fs = document.getElementById('modal-font-selector');
+    const sz = document.getElementById('modal-font-size');
+
+    ta.value = String(item.text || '').slice(0, 300);
+    fs.value = item.fontFamily || 'Jua';
+    sz.value = String(item.fontSize || 56);
+
+    m.classList.remove('hidden');
+  }
+
+  function closeTextEditModal(){
+    document.getElementById('text-edit-modal').classList.add('hidden');
+    modalTargetId = null;
+  }
+
+  function applyTextEditModal(){
+    if(!modalTargetId) return;
+    const it = getAllTextItems().find(x => x.id === modalTargetId);
+    if(!it) return closeTextEditModal();
+
+    const ta = document.getElementById('modal-text-content');
+    const fs = document.getElementById('modal-font-selector');
+    const sz = document.getElementById('modal-font-size');
+
+    const newText = (ta.value || '').trim();
+    if(!newText) return alert('내용을 입력해 주세요.');
+
+    it.text = newText.split('\n').slice(0,2).join('\n'); // 최대 2줄
+    it.fontFamily = fs.value || it.fontFamily || 'Jua';
+    it.fontSize = Math.min(140, Math.max(18, parseInt(sz.value || it.fontSize || 56, 10)));
+
+    if(isTitleItem(it)){
+      syncTitleInputsFromState();
+    }
+
+    state.selectedItem = it;
+    state.selectedType = 'text';
+
+    renderTexts();
+    drawBaseWithStickers('bg-canvas-text');
+    closeTextEditModal();
+  }
+
+  function deleteFromTextEditModal(){
+    if(!modalTargetId) return;
+    deleteTextById(modalTargetId);
+    closeTextEditModal();
+  }
+
   function initTextInteractionEvents(canvasId){
     const canvas = document.getElementById(canvasId);
     if(!canvas) return;
@@ -1684,6 +1794,7 @@
     canvas.onpointercancel = null;
 
     let active = null;
+    let downInfo = null;
 
     function hitBox(p, box){
       return (p.x >= box.x1 && p.x <= box.x2 && p.y >= box.y1 && p.y <= box.y2);
@@ -1709,57 +1820,22 @@
       return null;
     }
 
-    function deleteTextById(id){
-      if(id === state.titleText.id){
-        state.titleText.text = '행복네컷';
-        state.titleText.fontFamily = 'Jua';
-        state.titleText.fontSize = 68;
-        state.titleText.color = null;
-
-        const pos = getTitleDefaultPosition(state.titleText.fontSize);
-        state.titleText.x = pos.x;
-        state.titleText.y = pos.y;
-
-        state.selectedItem = state.titleText;
-        state.selectedType = 'text';
-        syncTitleInputsFromState();
-        renderTexts();
-        syncColorSwatches();
-        return;
-      }
-
-      const idx = state.texts.findIndex(t => t.id === id);
-      if(idx > -1) state.texts.splice(idx, 1);
-      state.selectedItem = null;
-      state.selectedType = null;
-
-      renderTexts();
-      syncColorSwatches();
-    }
-
     canvas.onpointerdown = (e) => {
       const p = getCanvasPoint(canvas, e.clientX, e.clientY);
       const hit = pickText(p);
+
+      downInfo = { x:p.x, y:p.y, moved:false, hit: hit };
 
       if(!hit){
         state.selectedItem = null;
         state.selectedType = null;
         renderTexts();
-        syncColorSwatches();
         return;
       }
 
       state.selectedItem = hit.item;
       state.selectedType = 'text';
-
-      if(isTitleItem(hit.item)){
-        syncTitleInputsFromState();
-      }else{
-        syncBottomInputsFromSelection();
-      }
-
       renderTexts();
-      syncColorSwatches();
 
       if(hit.onDel){
         deleteTextById(hit.item.id);
@@ -1783,6 +1859,11 @@
       if(!active) return;
       const p = getCanvasPoint(canvas, e.clientX, e.clientY);
 
+      if(downInfo){
+        const dist = Math.hypot(p.x - downInfo.x, p.y - downInfo.y);
+        if(dist > 6) downInfo.moved = true;
+      }
+
       if(active.mode === 'drag'){
         active.item.x = p.x + active.offsetX;
         active.item.y = p.y + active.offsetY;
@@ -1796,16 +1877,18 @@
         const newSize = Math.round(active.startFontSize * ratio);
         active.item.fontSize = Math.min(140, Math.max(18, newSize));
         renderTexts();
-
-        if(isTitleItem(active.item)){
-          const tsize = document.getElementById('title-font-size');
-          if(tsize) tsize.value = String(active.item.fontSize);
-        }
       }
     };
 
-    canvas.onpointerup = () => { active = null; };
-    canvas.onpointercancel = () => { active = null; };
+    canvas.onpointerup = () => {
+      // ✅ 드래그가 아니고(거의 움직임 없음) 몸통 클릭이면 모달 오픈
+      if(downInfo && downInfo.hit && downInfo.hit.onBody && !downInfo.moved){
+        openTextEditModal(downInfo.hit.item);
+      }
+      active = null;
+      downInfo = null;
+    };
+    canvas.onpointercancel = () => { active = null; downInfo = null; };
   }
 
   async function drawBaseWithStickers(canvasId){
@@ -1826,6 +1909,162 @@
     });
   }
 
+  // =========================================================
+  // ✅ Title/Body Color UI
+  // =========================================================
+  function setTitleColor(col){
+    state.titleText.color = col;
+    syncTitleColorCircleUI();
+    if(isStepVisible('step-decorate-text')){
+      renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
+    }
+  }
+
+  function setBodyColor(col){
+    state.currentBodyColor = col;
+    syncBodyColorCircleUI();
+
+    // ✅ 선택된 문구가 body면 즉시 적용
+    if(state.selectedType === 'text' && state.selectedItem && !isTitleItem(state.selectedItem)){
+      state.selectedItem.color = col;
+      renderTexts();
+      drawBaseWithStickers('bg-canvas-text');
+    }
+  }
+
+  function syncTitleColorCircleUI(){
+    const btn = document.getElementById('btn-title-color-circle');
+    if(!btn) return;
+    btn.style.backgroundColor = state.titleText.color ?? defaultTitleColorForFrame();
+  }
+
+  function syncBodyColorCircleUI(){
+    const btn = document.getElementById('btn-body-color-circle');
+    if(!btn) return;
+    btn.style.backgroundColor = state.currentBodyColor || '#000000';
+  }
+
+  function closeAllPalettes(){
+    ['title-palette-pop','title-custom-pop','body-palette-pop','body-custom-pop'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.classList.add('hidden');
+    });
+  }
+
+  function initTitleColorUI(){
+    // circle
+    syncTitleColorCircleUI();
+
+    // palette inject
+    const pop = document.getElementById('title-palette-pop');
+    if(pop){
+      const grid = pop.querySelector('.grid');
+      grid.innerHTML = '';
+      pastel15.forEach(c=>{
+        const d = document.createElement('div');
+        d.className = 'color-dot';
+        d.style.backgroundColor = c;
+        d.onclick = () => { setTitleColor(c); closeAllPalettes(); };
+        grid.appendChild(d);
+      });
+    }
+
+    const picker = document.getElementById('title-color-picker');
+    if(picker){
+      picker.value = (state.titleText.color ?? defaultTitleColorForFrame());
+    }
+  }
+
+  function initBodyColorUI(){
+    syncBodyColorCircleUI();
+
+    const pop = document.getElementById('body-palette-pop');
+    if(pop){
+      const grid = pop.querySelector('.grid');
+      grid.innerHTML = '';
+      pastel15.forEach(c=>{
+        const d = document.createElement('div');
+        d.className = 'color-dot';
+        d.style.backgroundColor = c;
+        d.onclick = () => { setBodyColor(c); closeAllPalettes(); };
+        grid.appendChild(d);
+      });
+    }
+
+    const picker = document.getElementById('body-color-picker');
+    if(picker){
+      picker.value = (state.currentBodyColor || '#000000');
+    }
+  }
+
+  function toggleTitlePalette(){
+    const pop = document.getElementById('title-palette-pop');
+    if(!pop) return;
+    const isOpen = !pop.classList.contains('hidden');
+    closeAllPalettes();
+    if(!isOpen) pop.classList.remove('hidden');
+  }
+  function toggleTitleCustom(){
+    const pop = document.getElementById('title-custom-pop');
+    if(!pop) return;
+    const picker = document.getElementById('title-color-picker');
+    if(picker) picker.value = (state.titleText.color ?? defaultTitleColorForFrame());
+    const isOpen = !pop.classList.contains('hidden');
+    closeAllPalettes();
+    if(!isOpen) pop.classList.remove('hidden');
+  }
+  function applyTitlePickerColor(){
+    const picker = document.getElementById('title-color-picker');
+    if(!picker) return;
+    setTitleColor(picker.value);
+    closeAllPalettes();
+  }
+
+  function toggleBodyPalette(){
+    const pop = document.getElementById('body-palette-pop');
+    if(!pop) return;
+    const isOpen = !pop.classList.contains('hidden');
+    closeAllPalettes();
+    if(!isOpen) pop.classList.remove('hidden');
+  }
+  function toggleBodyCustom(){
+    const pop = document.getElementById('body-custom-pop');
+    if(!pop) return;
+    const picker = document.getElementById('body-color-picker');
+    if(picker) picker.value = (state.currentBodyColor || '#000000');
+    const isOpen = !pop.classList.contains('hidden');
+    closeAllPalettes();
+    if(!isOpen) pop.classList.remove('hidden');
+  }
+  function applyBodyPickerColor(){
+    const picker = document.getElementById('body-color-picker');
+    if(!picker) return;
+    setBodyColor(picker.value);
+    closeAllPalettes();
+  }
+
+  // 팝업 바깥 클릭 시 닫기
+  document.addEventListener('pointerdown', (e)=>{
+    const ids = ['title-palette-pop','title-custom-pop','body-palette-pop','body-custom-pop'];
+    const isIn = ids.some(id=>{
+      const el = document.getElementById(id);
+      return el && !el.classList.contains('hidden') && el.contains(e.target);
+    });
+
+    const isBtn =
+      (document.getElementById('btn-title-color-circle')?.contains(e.target)) ||
+      (document.getElementById('btn-body-color-circle')?.contains(e.target)) ||
+      (e.target?.closest('button') && (e.target.closest('button').textContent||'').includes('원하는 색상'));
+
+    if(!isIn && !isBtn){
+      closeAllPalettes();
+    }
+  }, { passive:true });
+
+  // =========================================================
+  // ✅ Result
+  // =========================================================
   async function buildFinalCanvases(){
     const baseW = FRAME_LAYOUT.canvasW, baseH = FRAME_LAYOUT.canvasH;
 
@@ -1902,7 +2141,8 @@
     state.texts = [];
     state.selectedItem = null;
     state.selectedType = null;
-    state.currentTextColor = '#000000';
+
+    state.currentBodyColor = '#000000';
     state._countdownRunning = false;
 
     state.titleEnabled = false;
@@ -1916,17 +2156,23 @@
     showStep('step-start');
   }
 
+  // ---------- helpers ----------
   function isStepVisible(stepId){
     const el = document.getElementById(stepId);
     return el && !el.classList.contains('hidden');
   }
 
+  // =========================================================
+  // ✅ Init
+  // =========================================================
   document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
     await setCameraFacing('user', false);
     syncSoundToggleUI();
     showStep('step-start');
-    syncColorSwatches();
+
+    // ✅ Del 키로 삭제(스티커/문구)
+    window.addEventListener('keydown', onGlobalKeyDown);
   });
 </script>
 </body>
